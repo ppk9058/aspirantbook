@@ -31,6 +31,8 @@ export interface SeoAuditReport {
     pyqs: {
       totalCategories: number
       publishedCategories: number
+      totalPapers?: number
+      publishedPapers?: number
       missingDescriptions: number
       issues: Array<{ id: string; name: string; reason: string }>
     }
@@ -44,6 +46,8 @@ export interface SeoAuditReport {
       totalTutorials: number
       publishedTutorials: number
       draftTutorials: number
+      totalLessons?: number
+      publishedLessons?: number
       missingDescriptions: number
       issues: Array<{ id: string; title: string; reason: string }>
     }
@@ -62,11 +66,19 @@ export async function runSeoAudit(): Promise<SeoAuditReport> {
     cePublished,
     ceHindiReviewed,
     ceHindiUnreviewed,
+    totalPapers,
+    publishedPapers,
+    totalLessons,
+    publishedLessons,
   ] = await Promise.all([
     prisma.contentEngineQuestion.count(),
     prisma.contentEngineQuestion.count({ where: { isPublished: true } }),
     prisma.contentEngineTranslation.count({ where: { isReviewed: true } }),
     prisma.contentEngineTranslation.count({ where: { isReviewed: false } }),
+    prisma.pyqPaper.count(),
+    prisma.pyqPaper.count({ where: { status: "PUBLISHED" } }),
+    prisma.lesson.count(),
+    prisma.lesson.count({ where: { chapter: { course: { status: "PUBLISHED" } } } }),
   ])
 
   // Flag sample Content Engine issues (e.g. unreviewed Hindi or thin explanations)
@@ -247,6 +259,8 @@ export async function runSeoAudit(): Promise<SeoAuditReport> {
       pyqs: {
         totalCategories: pyqCategories.length,
         publishedCategories: pyqsPublished.length,
+        totalPapers,
+        publishedPapers,
         missingDescriptions: pyqMissingDesc.length,
         issues: pyqIssues,
       },
@@ -260,6 +274,8 @@ export async function runSeoAudit(): Promise<SeoAuditReport> {
         totalTutorials: courses.length,
         publishedTutorials: coursesPublished.length,
         draftTutorials: coursesDraft.length,
+        totalLessons,
+        publishedLessons,
         missingDescriptions: coursesMissingDesc.length,
         issues: tutorialIssues,
       },

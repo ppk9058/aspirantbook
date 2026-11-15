@@ -13,7 +13,6 @@ export const metadata: Metadata = {
     template: "%s | AspirantBook",
   },
   description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with AspirantBook.",
-  keywords: ["AspirantBook", "competitive exams", "test series", "eBooks", "interactive courses", "BPSC", "UPSC"],
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',

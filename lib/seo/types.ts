@@ -34,6 +34,15 @@ export interface SharedSeoInput {
   isPublished?: boolean
   isIndexable?: boolean
   noFollow?: boolean
+  /**
+   * Optional topic keywords for `<meta name="keywords">`.
+   *
+   * There is no site-wide keyword list any more: the engine only emits the tag
+   * when a caller supplies terms that describe this specific page. Pages
+   * without keywords emit no keyword tag at all (Google ignores it; the
+   * generic site-wide list was pure noise on every crawled page).
+   */
+  keywords?: string[]
   openGraph?: {
     title?: string
     description?: string

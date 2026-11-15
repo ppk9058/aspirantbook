@@ -1,11 +1,43 @@
-import { buildSeoPackage, buildBreadcrumbListJsonLd, buildCourseJsonLd, canonicalUrl, getBaseUrl } from "../core"
+import {
+  buildSeoPackage,
+  buildBreadcrumbListJsonLd,
+  buildCourseJsonLd,
+  canonicalUrl,
+  getBaseUrl,
+} from "../core"
 import type { SharedSeoOutput } from "../types"
 
-export function adaptCoursesCatalogSeo(baseUrl?: string): SharedSeoOutput {
+export function adaptCoursesCatalogSeo(
+  courses?: Array<{ title: string; slug: string }>,
+  baseUrl?: string
+): SharedSeoOutput {
+  const cleanBase = getBaseUrl(baseUrl)
   const canonicalPath = "/courses"
   const title = "All Video Courses & Batches | AspirantBook"
   const description =
     "Explore all comprehensive video courses, academic foundations, and competitive batches on AspirantBook."
+
+  const breadcrumbs = [
+    { name: "Home", url: canonicalUrl("/", cleanBase) },
+    { name: "Courses", url: canonicalUrl(canonicalPath, cleanBase) },
+  ]
+  const breadcrumbJsonLd = buildBreadcrumbListJsonLd(breadcrumbs)
+
+  const jsonLdList: Array<Record<string, unknown>> = [breadcrumbJsonLd]
+
+  if (courses && courses.length > 0) {
+    jsonLdList.push({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      numberOfItems: courses.length,
+      itemListElement: courses.map((c, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: c.title,
+        url: canonicalUrl(`/courses/${c.slug}`, cleanBase),
+      })),
+    })
+  }
 
   return buildSeoPackage(
     {
@@ -14,12 +46,59 @@ export function adaptCoursesCatalogSeo(baseUrl?: string): SharedSeoOutput {
       canonicalPath,
       titleAbsolute: true,
       isPublished: true,
-      breadcrumbs: [
-        { name: "Home", url: canonicalUrl("/", baseUrl) },
-        { name: "Courses", url: canonicalUrl(canonicalPath, baseUrl) },
-      ],
+      breadcrumbs,
+      jsonLd: jsonLdList,
     },
-    baseUrl
+    cleanBase
+  )
+}
+
+export function adaptCourseDetailSeo(
+  course: {
+    id: string
+    title: string
+    slug?: string | null
+    description?: string | null
+    thumbnailUrl?: string | null
+    isPublished?: boolean
+    status?: string | null
+  },
+  baseUrl?: string
+): SharedSeoOutput {
+  const cleanBase = getBaseUrl(baseUrl)
+  const canonicalPath = `/courses/${course.slug || course.id}`
+  const title = `${course.title} | AspirantBook`
+  const description = course.description || `Enroll in ${course.title} on AspirantBook`
+  const isPublished =
+    course.isPublished !== false &&
+    (course.status === "PUBLISHED" || !course.status)
+
+  const breadcrumbs = [
+    { name: "Home", url: canonicalUrl("/", cleanBase) },
+    { name: "Courses", url: canonicalUrl("/courses", cleanBase) },
+    { name: course.title, url: canonicalUrl(canonicalPath, cleanBase) },
+  ]
+
+  const jsonLd = buildCourseDetailJsonLd(course, cleanBase)
+
+  return buildSeoPackage(
+    {
+      title,
+      description,
+      canonicalPath,
+      titleAbsolute: true,
+      isPublished,
+      isIndexable: isPublished,
+      openGraph: {
+        title,
+        description,
+        type: "website",
+        ...(course.thumbnailUrl ? { images: [course.thumbnailUrl] } : {}),
+      },
+      breadcrumbs,
+      jsonLd,
+    },
+    cleanBase
   )
 }
 

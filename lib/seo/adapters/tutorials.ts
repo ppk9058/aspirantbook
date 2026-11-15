@@ -76,6 +76,82 @@ export function adaptTutorialDetailSeo(
   )
 }
 
+export function adaptTutorialLessonSeo(
+  tutorial: {
+    title: string
+    slug: string
+  },
+  lesson: {
+    id: string
+    title: string
+    slug: string
+    description?: string | null
+    isGated?: boolean
+    isPublished?: boolean
+    updatedAt?: Date | string
+  },
+  baseUrl?: string
+): SharedSeoOutput {
+  const cleanBase = getBaseUrl(baseUrl)
+  const canonicalPath = `/tutorials/${tutorial.slug}/${lesson.slug}`
+  const title = `${lesson.title} - ${tutorial.title}`
+  const rawDesc = lesson.description || `Read ${lesson.title} from ${tutorial.title} tutorial on AspirantBook.`
+  const description = rawDesc.length > 158 ? `${rawDesc.slice(0, 155)}...` : rawDesc
+  const isIndexable = lesson.isPublished !== false
+
+  const breadcrumbs = [
+    { name: "Home", url: canonicalUrl("/", cleanBase) },
+    { name: "Tutorials", url: canonicalUrl("/tutorials", cleanBase) },
+    { name: tutorial.title, url: canonicalUrl(`/tutorials/${tutorial.slug}`, cleanBase) },
+    { name: lesson.title, url: canonicalUrl(canonicalPath, cleanBase) },
+  ]
+
+  const breadcrumbJsonLd = buildBreadcrumbListJsonLd(breadcrumbs)
+  const articleJsonLd = lesson.isGated
+    ? {
+        ...buildArticleJsonLd({
+          type: "TechArticle",
+          headline: lesson.title,
+          description,
+          url: canonicalUrl(canonicalPath, cleanBase),
+          isAccessibleForFree: false,
+          dateModified: lesson.updatedAt ? new Date(lesson.updatedAt).toISOString() : undefined,
+        }),
+        name: title,
+        hasPart: {
+          "@type": "WebPageElement",
+          isAccessibleForFree: false,
+          cssSelector: "[role='region'][aria-label='Content Gate']",
+        },
+      }
+    : buildArticleJsonLd({
+        type: "TechArticle",
+        headline: lesson.title,
+        description,
+        url: canonicalUrl(canonicalPath, cleanBase),
+        isAccessibleForFree: true,
+        dateModified: lesson.updatedAt ? new Date(lesson.updatedAt).toISOString() : undefined,
+      })
+
+  return buildSeoPackage(
+    {
+      title,
+      description,
+      canonicalPath,
+      titleAbsolute: true,
+      isIndexable,
+      openGraph: {
+        title,
+        description,
+        type: "article",
+      },
+      breadcrumbs,
+      jsonLd: [breadcrumbJsonLd, articleJsonLd],
+    },
+    cleanBase
+  )
+}
+
 /**
  * JSON-LD for a tutorial detail page: BreadcrumbList (Home > Tutorials > real
  * title from the database row) plus the content schema. Gated content keeps

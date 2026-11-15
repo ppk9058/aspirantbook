@@ -14,6 +14,7 @@ import { isCourseVisibleToUser, isCourseDetailReady } from "@/lib/courses/visibi
 import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { AlertCircle } from "lucide-react"
 import { buildCourseDetailJsonLd, SeoJsonLd } from "@/lib/seo"
+import { adaptCourseDetailSeo } from "@/lib/seo/adapters/courses"
 
 import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
 import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema"
@@ -77,16 +78,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     const course = await prisma.course.findFirst({
         where: { OR: [{ slug }, { id: slug }] },
-        select: { id: true, slug: true, title: true, description: true, status: true, isPublished: true, createdById: true }
+        select: { id: true, slug: true, title: true, description: true, thumbnailUrl: true, status: true, isPublished: true, createdById: true }
     })
 
     if (!course) {
         const staticCourse = ALL_GOAL_COURSES.find((c) => c.slug === slug || c.id === slug)
         if (staticCourse) {
-            return {
+            return adaptCourseDetailSeo({
+                id: staticCourse.id,
                 title: staticCourse.title,
+                slug: staticCourse.slug,
                 description: staticCourse.description,
-            }
+                thumbnailUrl: (staticCourse as any).thumbnailUrl,
+            }).metadata
         }
         notFound()
     }
@@ -95,21 +99,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         notFound()
     }
 
-    return {
-        // Absolute: the root layout template would otherwise append
-        // "| AspirantBook" to a title that already carries it.
-        title: { absolute: `${course.title} | AspirantBook` },
-        description: course.description || `Enroll in ${course.title} on AspirantBook`,
-        alternates: {
-            canonical: `/courses/${course.slug || slug}`,
-        },
-        openGraph: {
-            title: `${course.title} | AspirantBook`,
-            description: course.description || `Enroll in ${course.title} on AspirantBook`,
-            type: "website",
-            url: `/courses/${course.slug || slug}`,
-        },
-    }
+    return adaptCourseDetailSeo(course).metadata
 }
 
 export default async function CourseDetailPage({

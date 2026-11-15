@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import SearchBar from "@/components/courses/SearchBar"
 import CourseTabs from "@/components/courses/CourseTabs"
 import CourseCard from "@/components/courses/CourseCard"
@@ -11,6 +12,8 @@ import StudentPageHeader from "@/components/layout/StudentPageHeader"
 import StudentPageToolbar from "@/components/layout/StudentPageToolbar"
 import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { classifyCourse, isCourseMatchingGoal } from "@/lib/course-classifier"
+import { hasPersistedGoalSelection } from "@/lib/goals/goal-storage"
+import { getUserEnrolledCourseIds } from "@/lib/actions/course/enrollment"
 
 interface Course {
     id: string
@@ -31,20 +34,22 @@ interface Course {
 
 interface CourseClientProps {
     dbCourses?: Course[]
-    enrolledCourseIds: string[]
-    completedCourseIds: string[]
-    bookmarkedCourseIds: string[]
+    enrolledCourseIds?: string[]
+    completedCourseIds?: string[]
+    bookmarkedCourseIds?: string[]
     badgeMap?: Record<string, any>
     serverGoalIds?: string[]
 }
 
 export default function CourseClient({
     dbCourses = [],
-    enrolledCourseIds,
+    enrolledCourseIds = [],
     badgeMap = {},
     serverGoalIds = [],
 }: CourseClientProps) {
+    const { data: session } = useSession()
     const { selectedGoal, selectedGoals } = useGoal()
+    const [enrolledIds, setEnrolledIds] = useState<string[]>(enrolledCourseIds)
 
     const allCourses = useMemo(() => {
         const combined: Course[] = []
@@ -68,7 +73,25 @@ export default function CourseClient({
 
     const [search, setSearch] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("all")
-    const [filterByGoal, setFilterByGoal] = useState(true)
+    // Default to false so initial server HTML renders ALL exams' courses to crawlers.
+    // Personalize after hydration only if the visitor has a saved exam target.
+    const [filterByGoal, setFilterByGoal] = useState(false)
+
+    useEffect(() => {
+        if (hasPersistedGoalSelection()) {
+            setFilterByGoal(true)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (session?.user?.id && enrolledIds.length === 0) {
+            getUserEnrolledCourseIds()
+                .then((ids) => {
+                    if (ids && ids.length > 0) setEnrolledIds(ids)
+                })
+                .catch(() => {})
+        }
+    }, [session?.user?.id, enrolledIds.length])
 
     // Reset selected category when goal changes
     useEffect(() => {
@@ -249,7 +272,7 @@ export default function CourseClient({
                             <CourseCard
                                 key={course.id}
                                 course={course as any}
-                                enrolled={enrolledCourseIds.includes(course.id)}
+                                enrolled={enrolledIds.includes(course.id)}
                                 progress={0}
                                 index={index}
                                 promoBadge={badgeMap[course.id] || badgeMap[course.slug] || null}

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import type {
   BreadcrumbItem,
   SeoHreflangLinks,
+  SeoImage,
   SharedSeoInput,
   SharedSeoOutput,
   SitemapEntry,
@@ -336,6 +337,55 @@ export function buildFaqJsonLd(
 }
 
 /**
+ * Default social-share card. 1200x630 (the size Twitter's
+ * `summary_large_image` and Facebook/LinkedIn expect), built from the brand
+ * mark. The engine always emits it when a page has no image of its own, so an
+ * engine-rendered page can never fall back to the root layout's stale card.
+ */
+export const DEFAULT_OG_IMAGE: SeoImage = {
+  url: "/og/aspirantbook-og.jpg",
+  width: 1200,
+  height: 630,
+  alt: `${SITE_NAME} — courses, test series and previous year papers`,
+}
+
+/**
+ * Normalizes the images a page passes to the engine into absolute og:image
+ * entries. Relative paths are resolved against the engine base URL (never a
+ * hardcoded host); absolute CDN/upload URLs are kept as-is. When the caller
+ * provides no image, the default 1200x630 brand card is used.
+ */
+export function resolveSeoImages(
+  images?: Array<string | SeoImage> | null,
+  baseUrl?: string,
+  fallback: SeoImage = DEFAULT_OG_IMAGE
+): SeoImage[] {
+  const base = getBaseUrl(baseUrl)
+
+  const toAbsolute = (url: string): string => {
+    if (!url) return url
+    if (/^https?:\/\//i.test(url)) return url
+    if (!base) return url
+    return canonicalUrl(url, base)
+  }
+
+  const source: Array<string | SeoImage> =
+    images && images.length > 0 ? images : [fallback]
+
+  return source.map((image) => {
+    if (typeof image === "string") {
+      return { url: toAbsolute(image), width: 1200, height: 630, alt: SITE_NAME }
+    }
+    return {
+      url: toAbsolute(image.url),
+      width: image.width || 1200,
+      height: image.height || 630,
+      alt: image.alt || SITE_NAME,
+    }
+  })
+}
+
+/**
  * Generates Schema.org Organization and WebSite schemas for the homepage JSON-LD graph.
  */
 export function buildHomeJsonLd(baseUrl?: string): Record<string, unknown> | null {
@@ -369,6 +419,48 @@ export function buildHomeJsonLd(baseUrl?: string): Record<string, unknown> | nul
         },
       },
     ],
+  }
+}
+
+/**
+ * Schema.org LearningResource generator.
+ *
+ * Used for previous-year question papers and other practice material. Only
+ * facts the database actually stores are passed in; there is deliberately no
+ * rating/review field (we do not collect paper reviews) and no answer key, so a
+ * gated paper can never leak its solutions through markup.
+ */
+export function buildLearningResourceJsonLd(opts: {
+  name: string
+  description: string
+  url?: string
+  inLanguage?: string
+  isAccessibleForFree?: boolean
+  learningResourceType?: string
+  educationalLevel?: string
+  about?: string
+  datePublished?: string
+  dateModified?: string
+  providerUrl?: string
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    name: opts.name,
+    description: opts.description,
+    learningResourceType: opts.learningResourceType || "QuestionPaper",
+    ...(opts.url ? { url: opts.url } : {}),
+    ...(opts.inLanguage ? { inLanguage: opts.inLanguage } : {}),
+    ...(opts.educationalLevel ? { educationalLevel: opts.educationalLevel } : {}),
+    ...(opts.about ? { about: { "@type": "Thing", name: opts.about } } : {}),
+    ...(opts.datePublished ? { datePublished: opts.datePublished } : {}),
+    ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
+    isAccessibleForFree: opts.isAccessibleForFree ?? true,
+    provider: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      ...(opts.providerUrl ? { url: opts.providerUrl } : {}),
+    },
   }
 }
 
@@ -417,19 +509,43 @@ export function buildMetadata(
       }
     : undefined
 
+  // Every engine page gets a complete social set derived from its OWN
+  // title/description/image. Next.js merges metadata per top-level field, so
+  // the root layout's static `twitter` block used to survive on any page that
+  // defined `openGraph` but not `twitter` (the /test-series production bug).
+  // Emitting both objects here makes the page values always win.
+  const socialTitle = input.openGraph?.title || input.title
+  const socialDescription = input.openGraph?.description || input.description
+  const socialImages = resolveSeoImages(
+    input.openGraph?.images,
+    base,
+    input.locale === "hi"
+      ? { ...DEFAULT_OG_IMAGE, alt: `${SITE_NAME} — पाठ्यक्रम और प्रश्न पत्र` }
+      : DEFAULT_OG_IMAGE
+  )
+
   const metadata: Metadata = {
     title: input.titleAbsolute ? { absolute: input.title } : input.title,
     description: input.description,
     alternates,
     robots,
+    ...(input.keywords && input.keywords.length > 0
+      ? { keywords: input.keywords }
+      : {}),
     openGraph: {
-      title: input.openGraph?.title || input.title,
-      description: input.openGraph?.description || input.description,
+      title: socialTitle,
+      description: socialDescription,
       url: fullCanonical,
       type: input.openGraph?.type || "website",
-      ...(input.openGraph?.images?.length
-        ? { images: input.openGraph.images }
-        : {}),
+      siteName: SITE_NAME,
+      locale: input.locale === "hi" ? "hi_IN" : "en_IN",
+      images: socialImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: socialTitle,
+      description: socialDescription,
+      images: socialImages.map((image) => image.url),
     },
   }
 

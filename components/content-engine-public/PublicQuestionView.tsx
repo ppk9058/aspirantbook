@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, XCircle, ArrowRight, Share2, Check } from "lucide-react"
 import { toast } from "sonner"
+import { SeoJsonLd } from "@/lib/seo/json-ld"
 
 export interface PublicQuestionData {
   id: string
@@ -66,11 +67,11 @@ export function PublicQuestionView({
     }
   }
 
-  const schemaContent = (() => {
+  const schemaObjects = (() => {
     if (!jsonLdScript) return null
     const scriptMatches = [...jsonLdScript.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)]
     if (scriptMatches.length > 0) {
-      const parsedObjects: unknown[] = []
+      const parsedObjects: Record<string, unknown>[] = []
       for (const m of scriptMatches) {
         try {
           parsedObjects.push(JSON.parse(m[1].trim()))
@@ -78,20 +79,11 @@ export function PublicQuestionView({
           // skip malformed snippet
         }
       }
-      if (parsedObjects.length === 1) {
-        return JSON.stringify(parsedObjects[0]).replace(/</g, "\\u003c")
-      }
-      if (parsedObjects.length > 1) {
-        const graph = parsedObjects.flatMap((p: any) => p["@graph"] || p)
-        return JSON.stringify({
-          "@context": "https://schema.org",
-          "@graph": graph,
-        }).replace(/</g, "\\u003c")
-      }
+      return parsedObjects.length > 0 ? parsedObjects : null
     }
     try {
       const parsed = JSON.parse(jsonLdScript)
-      return JSON.stringify(parsed).replace(/</g, "\\u003c")
+      return [parsed]
     } catch {
       return null
     }
@@ -99,13 +91,8 @@ export function PublicQuestionView({
 
   return (
     <article className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
-      {/* Standard Schema.org JSON-LD (No hidden section wrapping) */}
-      {schemaContent && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: schemaContent }}
-        />
-      )}
+      {/* Standard Schema.org JSON-LD via SeoJsonLd Engine */}
+      {schemaObjects && <SeoJsonLd schemas={schemaObjects} />}
 
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground flex flex-wrap items-center gap-1.5">

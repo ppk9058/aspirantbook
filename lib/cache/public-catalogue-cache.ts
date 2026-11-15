@@ -15,7 +15,7 @@ import { revalidatePath } from "next/cache"
  * database, i.e. seconds after the container starts, instead of waiting for an
  * hour or for an editor to save something.
  */
-export const PUBLIC_CATALOGUE_PATHS = ["/test-series", "/", "/books"] as const
+export const PUBLIC_CATALOGUE_PATHS = ["/test-series", "/", "/books", "/courses"] as const
 
 /**
  * Revalidate the public catalogues. Safe to call from any request handler:

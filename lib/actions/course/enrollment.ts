@@ -98,3 +98,15 @@ export async function unenrollFromCourse(courseId: string) {
 
     return { success: true, message: "Unenrolled successfully" }
 }
+
+export async function getUserEnrolledCourseIds(): Promise<string[]> {
+    const session = await auth()
+    if (!session?.user?.id) return []
+
+    const enrollments = await prisma.enrollment.findMany({
+        where: { userId: session.user.id },
+        select: { courseId: true },
+    })
+
+    return enrollments.map((e) => e.courseId)
+}
