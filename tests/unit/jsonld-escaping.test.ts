@@ -31,6 +31,8 @@ const PAGES_WITH_JSONLD = [
   "app/(dashboard)/test-series/[id]/page.tsx",
   "app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx",
   "app/(dashboard)/pyqs/[examId]/page.tsx",
+  "app/(dashboard)/pyqs/[examId]/[slug]/page.tsx",
+  "app/(dashboard)/tutorials/[slug]/[lessonSlug]/page.tsx",
 ]
 
 /**

@@ -7,6 +7,7 @@ import { RoseraRenderer } from "./RoseraRenderer"
 import { inlineFmt } from "@/lib/rosera/inline"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
+import { deriveLessonSlug } from "@/lib/tutorials/lesson-slug"
 import "./rosera.css"
 
 interface Lesson {
@@ -44,10 +45,12 @@ interface AspirantbookTutorialViewProps {
     }
     chapters: Chapter[]
     isEditor?: boolean
+    initialActiveLessonId?: string
     onSwitchToStudio?: () => void
 }
 
 interface ChapterIndexContentProps {
+    courseSlug: string
     searchQuery: string
     setSearchQuery: (q: string) => void
     activeId: string
@@ -65,6 +68,7 @@ interface ChapterIndexContentProps {
 }
 
 function ChapterIndexContent({
+    courseSlug,
     searchQuery,
     setSearchQuery,
     activeId,
@@ -102,14 +106,14 @@ function ChapterIndexContent({
 
             {/* Course Overview Link */}
             <div className="mb-3">
-                <button
-                    type="button"
+                <Link
+                    href={`/tutorials/${courseSlug}`}
                     onClick={onSelectOverview}
                     className={`asp-nv ${activeId === "overview" ? "active" : ""}`}
                 >
                     <span className="text-base">📖</span>
                     <span>Course Overview &amp; Roadmap</span>
-                </button>
+                </Link>
             </div>
 
             {/* PHASES HIERARCHY */}
@@ -145,13 +149,15 @@ function ChapterIndexContent({
                                     const isFullyLocked = isItemGated && ((l as any).effectivePercentage === 0 || (ch as any)?.effectivePercentage === 0)
 
                                     return (
-                                        <button
+                                        <Link
                                             key={`${prefixId}-${l.id}`}
-                                            ref={isSelected && activeItemRef ? activeItemRef : undefined}
-                                            type="button"
-                                            disabled={isComingSoon}
-                                            onClick={() => onSelectLesson(l.id, false)}
-                                            className={`asp-nv ${isSelected ? "active" : ""} ${isComingSoon ? "disabled" : ""}`}
+                                            href={isComingSoon ? `/tutorials/${courseSlug}` : `/tutorials/${courseSlug}/${deriveLessonSlug(l)}`}
+                                            onClick={() => {
+                                                if (!isComingSoon) {
+                                                    onSelectLesson(l.id, false)
+                                                }
+                                            }}
+                                            className={`asp-nv ${isSelected ? "active" : ""} ${isComingSoon ? "disabled pointer-events-none opacity-60" : ""}`}
                                             title={isComingSoon ? "Coming in a later phase" : isFullyLocked ? "Locked chapter — sign in to unlock" : l.title}
                                         >
                                             <span className="truncate pr-1">{l.title}</span>
@@ -168,7 +174,7 @@ function ChapterIndexContent({
                                                     🔒
                                                 </span>
                                             )}
-                                        </button>
+                                        </Link>
                                     )
                                 })}
                             </div>
@@ -184,10 +190,11 @@ export function AspirantbookTutorialView({
     course,
     chapters,
     isEditor = false,
+    initialActiveLessonId,
     onSwitchToStudio,
 }: AspirantbookTutorialViewProps) {
     const [searchQuery, setSearchQuery] = useState("")
-    const [activeId, setActiveId] = useState<string>("overview")
+    const [activeId, setActiveId] = useState<string>(initialActiveLessonId || "overview")
 
     // Mobile / Tablet Drawer State (< 1024px)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -558,6 +565,8 @@ export function AspirantbookTutorialView({
         currentLessonIndex >= 0 && currentLessonIndex + 1 < orderedLessons.length
             ? orderedLessons[currentLessonIndex + 1]
             : null
+    const prevLesson =
+        currentLessonIndex > 0 ? orderedLessons[currentLessonIndex - 1] : null
 
     const handleSelectLesson = (lessonId: string, isLocked: boolean) => {
         if (isLocked) return
@@ -986,6 +995,7 @@ export function AspirantbookTutorialView({
                 {/* Scrollable Drawer Body */}
                 <div className="flex-1 overflow-y-auto p-3.5 sm:p-4">
                     <ChapterIndexContent
+                        courseSlug={course.slug}
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                         activeId={activeId}
@@ -1019,6 +1029,7 @@ export function AspirantbookTutorialView({
                     className="hidden lg:block p-3.5 sm:p-4 lg:sticky lg:top-[58px] lg:h-[calc(100vh-58px)] overflow-y-auto"
                 >
                     <ChapterIndexContent
+                        courseSlug={course.slug}
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                         activeId={activeId}
@@ -1222,25 +1233,40 @@ export function AspirantbookTutorialView({
                                                     border: `3px solid ${cInk}`,
                                                     boxShadow: `4px 4px 0 ${cGreen}`,
                                                 }}
-                                                className="rounded-xl p-4 sm:p-5 space-y-1.5 cursor-pointer hover:translate-x-0.5 hover:-translate-y-0.5 transition-transform"
-                                                onClick={() => {
-                                                    const firstLesson = ch.lessons?.[0]
-                                                    if (firstLesson) {
-                                                        setActiveId(firstLesson.id)
-                                                        window.scrollTo({ top: 0, behavior: "smooth" })
-                                                    }
-                                                }}
+                                                className="rounded-xl p-4 sm:p-5 space-y-2.5 transition-transform"
                                             >
-                                                <span className="text-2xl sm:text-3xl block">{emojis[idx % emojis.length]}</span>
-                                                <b
-                                                    style={{ color: cInk }}
-                                                    className="aspirantbook-head block text-base font-bold"
-                                                >
-                                                    {ch.title}
-                                                </b>
-                                                <small className="block text-xs text-gray-600 font-semibold">
-                                                    {(ch.lessons || []).length} topics
-                                                </small>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-2xl sm:text-3xl block">{emojis[idx % emojis.length]}</span>
+                                                    <div>
+                                                        <b
+                                                            style={{ color: cInk }}
+                                                            className="aspirantbook-head block text-base font-bold"
+                                                        >
+                                                            {ch.title}
+                                                        </b>
+                                                        <small className="block text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                                                            {(ch.lessons || []).length} topics
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                {ch.lessons && ch.lessons.length > 0 && (
+                                                    <ul className="space-y-1.5 pt-2 border-t border-gray-200/70 dark:border-gray-800/70">
+                                                        {ch.lessons.map((l) => (
+                                                            <li key={l.id}>
+                                                                <Link
+                                                                    href={`/tutorials/${course.slug}/${deriveLessonSlug(l)}`}
+                                                                    onClick={() => {
+                                                                        setActiveId(l.id)
+                                                                        window.scrollTo({ top: 0, behavior: "smooth" })
+                                                                    }}
+                                                                    className="text-xs font-semibold hover:underline block truncate text-primary hover:text-primary/80"
+                                                                >
+                                                                    • {l.title}
+                                                                </Link>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
                                             </div>
                                         )
                                     })}
@@ -1322,15 +1348,30 @@ export function AspirantbookTutorialView({
                                     </span>
                                 </button>
 
-                                {nextLesson && !nextLesson.isLocked && (
-                                    <button
-                                        type="button"
-                                        onClick={handleGoNext}
-                                        className="asp-btn"
-                                    >
-                                        <span>Next chapter ➜</span>
-                                    </button>
-                                )}
+                                <div className="flex flex-wrap items-center gap-3">
+                                    {prevLesson && (
+                                        <Link
+                                            href={`/tutorials/${course.slug}/${deriveLessonSlug({ id: prevLesson.lessonId, title: prevLesson.title })}`}
+                                            onClick={() => {
+                                                setActiveId(prevLesson.lessonId)
+                                                window.scrollTo({ top: 0, behavior: "smooth" })
+                                            }}
+                                            className="asp-btn bg-card text-foreground border-2 border-border shadow-xs hover:bg-muted"
+                                        >
+                                            <span>⬅ Previous chapter</span>
+                                        </Link>
+                                    )}
+
+                                    {nextLesson && !nextLesson.isLocked && (
+                                        <Link
+                                            href={`/tutorials/${course.slug}/${deriveLessonSlug({ id: nextLesson.lessonId, title: nextLesson.title })}`}
+                                            onClick={handleGoNext}
+                                            className="asp-btn"
+                                        >
+                                            <span>Next chapter ➜</span>
+                                        </Link>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}

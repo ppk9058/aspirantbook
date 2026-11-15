@@ -3,12 +3,20 @@ import assert from "node:assert/strict"
 import {
   adaptPyqsCatalogSeo,
   adaptPyqCategorySeo,
+  adaptPyqPaperSeo,
+  isThinPyqPaper,
   adaptTestSeriesCatalogSeo,
   adaptTestSeriesDetailSeo,
   adaptCurrentAffairsCatalogSeo,
   adaptCurrentAffairsQuizSeo,
   adaptTutorialsCatalogSeo,
   adaptTutorialDetailSeo,
+  adaptTutorialLessonSeo,
+  adaptCourseDetailSeo,
+  adaptCoursesCatalogSeo,
+  adaptBooksCatalogSeo,
+  adaptBookDetailSeo,
+  adaptHomeSeo,
   adaptContentEngineSeo,
 } from "../../lib/seo"
 
@@ -298,6 +306,192 @@ describe("SEO Module Adapters", () => {
         base
       )
       assertMetadataInvariants("Content Engine Question HI", qHi, "/hi/question-answer/bpsc/ancient-india/q-12345678-capital-of-magadha")
+    })
+  })
+
+  describe("PR B Adapters & Social Tags Verification", () => {
+    it("adaptPyqPaperSeo returns truthful metadata, LearningResource, and respects thin-content threshold", () => {
+      const fullPaper = adaptPyqPaperSeo(
+        {
+          title: "69th BPSC Prelims General Studies Question Paper",
+          slug: "69th-bpsc-prelims-gs-2023",
+          year: 2023,
+          stage: "PRELIMS",
+          shift: "Shift 1",
+          subject: "General Studies",
+          totalQuestions: 150,
+          totalMarks: 150,
+          durationMin: 120,
+          accessType: "FREE",
+          status: "PUBLISHED",
+          hasQuestions: true,
+        },
+        { name: "BPSC", slug: "bpsc" },
+        base
+      )
+
+      assert.equal(fullPaper.canonicalUrl, "https://aspirantbook.com/pyqs/bpsc/69th-bpsc-prelims-gs-2023")
+      assert.equal(fullPaper.robots, "index, follow")
+      assert.ok(fullPaper.title.length <= 60, `Title too long: ${fullPaper.title}`)
+      assert.ok(fullPaper.description.length <= 160, `Description too long: ${fullPaper.description}`)
+      assert.equal(fullPaper.breadcrumbs.length, 4)
+
+      const learningRes = fullPaper.jsonLd.find((s) => s["@type"] === "LearningResource") as any
+      assert.ok(learningRes, "LearningResource schema missing")
+      assert.equal(learningRes.name, "69th BPSC Prelims General Studies Question Paper")
+      assert.equal(learningRes.isAccessibleForFree, true)
+      assert.equal(learningRes.provider.name, "AspirantBook")
+
+      // Thin-content guard check
+      const thinPaperInput = {
+        title: "Test Thin Paper",
+        slug: "thin-paper",
+        year: null,
+        subject: null,
+        hasQuestions: false,
+      }
+      assert.equal(isThinPyqPaper(thinPaperInput), true, "Paper without questions or year/subject must be thin")
+
+      const thinSeo = adaptPyqPaperSeo(
+        thinPaperInput,
+        { name: "BPSC", slug: "bpsc" },
+        base
+      )
+      assert.equal(thinSeo.robots, "noindex, follow", "Thin paper must emit noindex")
+    })
+
+    it("adaptTutorialLessonSeo outputs chapter canonical, TechArticle, and gated parts", () => {
+      const freeLesson = adaptTutorialLessonSeo(
+        { title: "Next.js Deep Dive", slug: "nextjs-deep-dive" },
+        {
+          id: "les-123456",
+          title: "Server Components Architecture",
+          slug: "server-components-architecture-123456",
+          description: "Learn how React Server Components execute exclusively on the server.",
+          isGated: false,
+          isPublished: true,
+        },
+        base
+      )
+
+      assert.equal(
+        freeLesson.canonicalUrl,
+        "https://aspirantbook.com/tutorials/nextjs-deep-dive/server-components-architecture-123456"
+      )
+      assert.equal(freeLesson.title, "Server Components Architecture - Next.js Deep Dive")
+      assert.equal(freeLesson.robots, "index, follow")
+      assert.equal(freeLesson.breadcrumbs.length, 4)
+
+      const freeTech = freeLesson.jsonLd.find((s) => s["@type"] === "TechArticle") as any
+      assert.ok(freeTech)
+      assert.equal(freeTech.isAccessibleForFree, true)
+
+      // Gated lesson check
+      const gatedLesson = adaptTutorialLessonSeo(
+        { title: "Next.js Deep Dive", slug: "nextjs-deep-dive" },
+        {
+          id: "les-789012",
+          title: "Streaming and Suspense Boundaries",
+          slug: "streaming-suspense-boundaries-789012",
+          isGated: true,
+          isPublished: true,
+        },
+        base
+      )
+      const gatedTech = gatedLesson.jsonLd.find((s) => s["@type"] === "TechArticle") as any
+      assert.ok(gatedTech)
+      assert.equal(gatedTech.isAccessibleForFree, false)
+      assert.ok(gatedTech.hasPart, "Gated TechArticle must have hasPart marker")
+      assert.equal(gatedTech.hasPart.cssSelector, "[role='region'][aria-label='Content Gate']")
+    })
+
+    it("PART 4: verifies all adapters emit complete, consistent social tags with absolute og:image and page-matching twitter:*", () => {
+      const packages: Array<{ name: string; output: any }> = [
+        { name: "Home", output: adaptHomeSeo(base) },
+        { name: "Courses Catalog", output: adaptCoursesCatalogSeo([], base) },
+        {
+          name: "Course Detail",
+          output: adaptCourseDetailSeo(
+            { id: "c1", slug: "upsc-gs-foundation", title: "UPSC GS Foundation", description: "Comprehensive course", thumbnailUrl: "https://r2.aspirantbook.com/course.jpg" },
+            base
+          ),
+        },
+        { name: "Books Catalog", output: adaptBooksCatalogSeo(base) },
+        {
+          name: "Book Detail",
+          output: adaptBookDetailSeo(
+            { title: "Indian Polity", slug: "indian-polity", coverImage: "https://r2.aspirantbook.com/polity.jpg" },
+            base
+          ),
+        },
+        { name: "Test Series Catalog", output: adaptTestSeriesCatalogSeo(base) },
+        {
+          name: "Test Series Detail",
+          output: adaptTestSeriesDetailSeo(
+            { id: "s1", slug: "bpsc-mock", title: "BPSC Mock", isPublished: true },
+            base
+          ),
+        },
+        { name: "PYQs Catalog", output: adaptPyqsCatalogSeo(base) },
+        {
+          name: "PYQ Category",
+          output: adaptPyqCategorySeo(
+            { name: "BPSC", slug: "bpsc", description: "BPSC PYQs", isPublished: true },
+            base
+          ),
+        },
+        {
+          name: "PYQ Paper",
+          output: adaptPyqPaperSeo(
+            { title: "69th BPSC Paper", slug: "69th-bpsc", year: 2023, subject: "GS", status: "PUBLISHED" },
+            { name: "BPSC", slug: "bpsc" },
+            base
+          ),
+        },
+        { name: "Tutorials Catalog", output: adaptTutorialsCatalogSeo(base) },
+        {
+          name: "Tutorial Detail",
+          output: adaptTutorialDetailSeo(
+            { id: "t1", slug: "react-19", title: "React 19 Tutorial", isPublished: true },
+            base
+          ),
+        },
+        {
+          name: "Tutorial Lesson",
+          output: adaptTutorialLessonSeo(
+            { title: "React 19", slug: "react-19" },
+            { id: "l1", slug: "actions", title: "Server Actions", isPublished: true },
+            base
+          ),
+        },
+        { name: "Current Affairs Catalog", output: adaptCurrentAffairsCatalogSeo(base) },
+      ]
+
+      for (const { name, output } of packages) {
+        const meta = output.metadata
+        assert.ok(meta, `${name}: metadata missing`)
+        assert.ok(meta.openGraph, `${name}: openGraph missing`)
+        assert.ok(meta.twitter, `${name}: twitter missing`)
+
+        // Twitter card must be summary_large_image
+        assert.equal(meta.twitter.card, "summary_large_image", `${name}: twitter.card must be summary_large_image`)
+
+        // Twitter title and description must match the page values, never layout fallback
+        const pageTitle = typeof meta.title === "object" && meta.title && "absolute" in meta.title ? meta.title.absolute : meta.title
+        assert.equal(meta.twitter.title, meta.openGraph.title, `${name}: twitter.title must equal openGraph.title`)
+        assert.equal(meta.twitter.description, meta.description, `${name}: twitter.description must equal description`)
+
+        // Images must be absolute URLs with width and height
+        assert.ok(Array.isArray(meta.openGraph.images) && meta.openGraph.images.length > 0, `${name}: openGraph.images must not be empty`)
+        const ogImg = meta.openGraph.images[0]
+        assert.ok(ogImg.url.startsWith("https://") || ogImg.url.startsWith("http://"), `${name}: og:image must be absolute URL (${ogImg.url})`)
+        assert.ok(ogImg.width && ogImg.width >= 600, `${name}: og:image width must be set`)
+        assert.ok(ogImg.height && ogImg.height >= 315, `${name}: og:image height must be set`)
+
+        // Twitter images must be absolute strings matching the og image
+        assert.ok(Array.isArray(meta.twitter.images) && meta.twitter.images.length > 0, `${name}: twitter.images must not be empty`)
+        assert.equal(meta.twitter.images[0], ogImg.url, `${name}: twitter.images[0] must match ogImg.url`)
+      }
     })
   })
 })

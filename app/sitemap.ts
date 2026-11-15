@@ -2,6 +2,8 @@ import { MetadataRoute } from "next"
 import { prisma } from "@/lib/prisma"
 import { getAllBooks } from "@/lib/books/bookService"
 import { getBaseUrl } from "@/lib/seo/core"
+import { isThinPyqPaper } from "@/lib/seo/adapters/pyq-paper"
+import { deriveLessonSlug } from "@/lib/tutorials/lesson-slug"
 
 export const revalidate = 3600 // 1 hour
 
@@ -113,7 +115,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ]
 
-    const [publishedCourses, allBooks, publishedSeries, publishedQuizzes, publishedPyqs] = await Promise.all([
+    const [
+        publishedCourses,
+        allBooks,
+        publishedSeries,
+        publishedQuizzes,
+        publishedPyqs,
+        publishedPapers,
+        publishedTutorialsWithLessons,
+    ] = await Promise.all([
         prisma.course.findMany({
             where: { status: "PUBLISHED" },
             select: { slug: true, updatedAt: true },
@@ -142,12 +152,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             select: { slug: true, updatedAt: true },
             take: 500,
         }),
+        prisma.pyqPaper.findMany({
+            where: { status: "PUBLISHED" },
+            include: {
+                category: { select: { slug: true } },
+            },
+            take: 500,
+        }),
+        prisma.course.findMany({
+            where: { status: "PUBLISHED" },
+            select: {
+                slug: true,
+                updatedAt: true,
+                chapters: {
+                    select: {
+                        lessons: {
+                            where: {
+                                OR: [
+                                    { isTrial: true },
+                                    { gateMode: "free" },
+                                    { gateMode: "inherit" },
+                                    { previewPercentage: { gt: 0 } },
+                                ],
+                            },
+                            select: {
+                                id: true,
+                                title: true,
+                                externalId: true,
+                                createdAt: true,
+                            },
+                        },
+                    },
+                },
+            },
+            take: 500,
+        }),
     ])
 
     warnIfCapReached("courses", publishedCourses.length, 500)
     warnIfCapReached("examSeries", publishedSeries.length, 500)
     warnIfCapReached("currentAffairsQuizzes", publishedQuizzes.length, 500)
     warnIfCapReached("pyqCategories", publishedPyqs.length, 500)
+    warnIfCapReached("pyqPapers", publishedPapers.length, 500)
 
     const courseUrls: MetadataRoute.Sitemap = publishedCourses
         .filter((c) => !!c.slug)
@@ -206,7 +252,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.8,
         }))
 
-    return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...quizUrls, ...tutorialUrls, ...pyqUrls]
+    const pyqPaperUrls: MetadataRoute.Sitemap = publishedPapers
+        .filter((p) => !isThinPyqPaper(p) && !!p.category?.slug && !!p.slug)
+        .map((p) => ({
+            url: `${baseUrl}/pyqs/${p.category.slug}/${p.slug}`,
+            lastModified: p.updatedAt || new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.8,
+        }))
+
+    const tutorialLessonUrls: MetadataRoute.Sitemap = []
+    let totalLessonsCount = 0
+    for (const c of publishedTutorialsWithLessons) {
+        if (!c.slug) continue
+        for (const ch of c.chapters || []) {
+            for (const l of ch.lessons || []) {
+                totalLessonsCount++
+                tutorialLessonUrls.push({
+                    url: `${baseUrl}/tutorials/${c.slug}/${deriveLessonSlug(l)}`,
+                    lastModified: c.updatedAt || new Date(),
+                    changeFrequency: "weekly" as const,
+                    priority: 0.7,
+                })
+            }
+        }
+    }
+    warnIfCapReached("tutorialLessons", totalLessonsCount, 500)
+
+    return [
+        ...staticRoutes,
+        ...courseUrls,
+        ...bookUrls,
+        ...seriesUrls,
+        ...quizUrls,
+        ...tutorialUrls,
+        ...tutorialLessonUrls,
+        ...pyqUrls,
+        ...pyqPaperUrls,
+    ]
 }
 
 export const dynamic = "force-dynamic";

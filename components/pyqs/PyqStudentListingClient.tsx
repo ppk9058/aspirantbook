@@ -415,7 +415,9 @@ export function PyqStudentListingClient({
 
                 {/* Title */}
                 <h3 className="font-bold text-foreground text-base line-clamp-2 leading-snug tracking-tight group-hover:text-primary transition-colors break-words min-h-[2.75rem]">
-                  {paper.title}
+                  <Link href={`/pyqs/${paper.category.slug}/${paper.slug}`} className="hover:underline">
+                    {paper.title}
+                  </Link>
                 </h3>
 
                 {/* Subject & Sub-exam */}
