@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import goalsConfig from "@/data/goals-config.json"
 import { parseGoalIds, serializeGoalIds } from "@/lib/goals/student-goals"
 import { getQueryGoal, shouldApplyQueryGoal, stripGoalParam } from "@/lib/goals/query-goal"
+import { GOAL_STORAGE_KEY, SUBGOAL_STORAGE_KEY } from "@/lib/goals/goal-storage"
 
 function getClientCookie(name: string): string | null {
     if (typeof document === "undefined") return null
@@ -117,8 +118,8 @@ const GoalContext = createContext<GoalContextType>({
     setGoalIds: () => {},
 })
 
-const STORAGE_GOAL_KEY = "trillion_selected_goal"
-const STORAGE_SUBGOAL_KEY = "trillion_selected_sub_goal"
+const STORAGE_GOAL_KEY = GOAL_STORAGE_KEY
+const STORAGE_SUBGOAL_KEY = SUBGOAL_STORAGE_KEY
 let cachedUserGoalPromise: Promise<any> | null = null
 
 export function invalidateCachedUserGoalPromise() {
