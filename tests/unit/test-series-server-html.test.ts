@@ -339,5 +339,18 @@ describe("test-series server render — cards and ItemList are in the server HTM
       /if \(!hasPersistedGoalSelection\(\)\) return/,
       "the first client effect must not refetch without a saved goal"
     )
+
+    // A failed goal refetch must keep the current list; a silent catch that
+    // resets the catalogue would delete the server-rendered cards again.
+    assert.doesNotMatch(
+      client,
+      /\.catch\(\(\)\s*=>/,
+      "the goal refetch must not swallow its error and blank the catalogue"
+    )
+    assert.match(
+      client,
+      /goal-filtered refetch failed; keeping the current list/,
+      "the goal refetch failure must log and keep the current list"
+    )
   })
 })

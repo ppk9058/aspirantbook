@@ -199,7 +199,13 @@ export default function TestSeriesListingClient({
                     setSeriesPackages(json.data)
                 }
             })
-            .catch(() => { if (active) setSeriesPackages([]) })
+            .catch((error) => {
+                if (!active) return
+                // Never blank the catalogue on a failed personalisation call:
+                // keep what is on screen (the server-rendered list), so a goal
+                // refetch error can not remove cards the crawler already saw.
+                console.error("[test-series] goal-filtered refetch failed; keeping the current list", error)
+            })
             .finally(() => { if (active) setSeriesLoading(false) })
         return () => { active = false }
     }, [isLoaded, selectedGoalIds, filterByGoal, selectedGoal?.id, session?.user?.id])
