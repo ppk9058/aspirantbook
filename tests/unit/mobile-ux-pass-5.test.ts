@@ -33,7 +33,11 @@ function exists(relPath: string): boolean {
 
 describe("Mobile UX pass 5 — bookstore header carries the profile features", () => {
   const header = readRepoFile("components/books/BookStoreHeader.tsx")
-  const booksPage = readRepoFile("app/(dashboard)/books/page.tsx")
+  // The catalogue markup lives in the client component since /books became a
+  // static server shell (SEO PR A). Assert against the shell + client union.
+  const booksPage =
+    readRepoFile("app/(dashboard)/books/page.tsx") +
+    readRepoFile("components/books/BooksCatalogClient.tsx")
 
   it("the category chip row and its filtering logic are gone", () => {
     assert.doesNotMatch(booksPage, /BOOK_CHIP_CATEGORIES/)

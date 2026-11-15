@@ -90,8 +90,15 @@ describe("UI polish 2 — one shared clearance for the floating AI button", () =
   })
 
   it("pages that had their own bottom padding no longer duplicate it", () => {
-    const testSeries = readRepoFile("app/(dashboard)/test-series/page.tsx")
-    const books = readRepoFile("app/(dashboard)/books/page.tsx")
+    // SEO PR A split both catalogues into a static server shell + client body.
+    // Read the shell and the client component so the padding assertions still
+    // cover the markup that actually renders.
+    const testSeries =
+      readRepoFile("app/(dashboard)/test-series/page.tsx") +
+      readRepoFile("components/exam/TestSeriesListingClient.tsx")
+    const books =
+      readRepoFile("app/(dashboard)/books/page.tsx") +
+      readRepoFile("components/books/BooksCatalogClient.tsx")
 
     assert.doesNotMatch(testSeries, /\bpb-36\b|\bpb-32\b|\bpb-28\b|\bpb-24\b/)
     assert.match(testSeries, /<div className="space-y-4 sm:space-y-5">/)

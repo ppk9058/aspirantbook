@@ -69,7 +69,11 @@ test("Shared Hook: usePassPurchaseModal controls state, guest redirection, auto-
 })
 
 test("Wiring: test-series list & detail surfaces wire to PassPurchaseModal", () => {
-  const listPage = read("app/(dashboard)/test-series/page.tsx")
+  // Shell + client union: the list markup moved into the client component when
+  // /test-series became a static server shell (SEO PR A).
+  const listPage =
+    read("app/(dashboard)/test-series/page.tsx") +
+    read("components/exam/TestSeriesListingClient.tsx")
   assert.ok(listPage.includes("PassPurchaseModal"), "Test series page must include PassPurchaseModal")
   assert.ok(listPage.includes("usePassPurchaseModal"), "Test series page must use usePassPurchaseModal")
   assert.ok(!listPage.includes('href="/subscription"'), "Test series page must not link to /subscription for Get Pass")
