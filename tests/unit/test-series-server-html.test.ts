@@ -16,6 +16,7 @@ import {
 import { adaptTestSeriesCatalogSeo } from "../../lib/seo"
 import { SeoJsonLd } from "../../lib/seo/json-ld"
 import { TestSeriesGrid } from "../../components/exam/TestSeriesCards"
+import { prisma } from "../../lib/prisma"
 
 /**
  * Regression guard for the production bug where https://aspirantbook.com/test-series
@@ -111,19 +112,25 @@ describe("test-series server catalogue — failed reads are not an empty catalog
     )
   })
 
-  test("fetchPublishedSeriesForListing throws instead of returning [] when the DB is down", async () => {
-    // The dummy build DATABASE_URL used by the Docker build is unreachable by
-    // design. Before the fix the query error was swallowed and baked into ISR.
-    const saved = process.env.DATABASE_URL
-    process.env.DATABASE_URL = "postgresql://placeholder:placeholder@db.build-placeholder.invalid:5432/placeholder_build_test?sslmode=require"
+  test("fetchPublishedSeriesForListing throws instead of returning [] when the query fails", async () => {
+    // The Docker/CI build runs `next build` with a dummy DATABASE_URL, so this
+    // query always fails there. Before the fix the error was swallowed and baked
+    // into ISR. Stub the delegate so the assertion does not depend on the
+    // ambient DATABASE_URL of the test process.
+    const originalFindMany = prisma.examSeries.findMany.bind(prisma.examSeries)
+    const failure = new Error("connect ECONNREFUSED 127.0.0.1:5432")
+    prisma.examSeries.findMany = (async () => {
+      throw failure
+    }) as typeof prisma.examSeries.findMany
+
     try {
       await assert.rejects(
         () => fetchPublishedSeriesForListing(),
-        (error: unknown) => error instanceof SeriesListingUnavailableError
+        (error: unknown) =>
+          error instanceof SeriesListingUnavailableError && error.cause === failure
       )
     } finally {
-      if (saved === undefined) delete process.env.DATABASE_URL
-      else process.env.DATABASE_URL = saved
+      prisma.examSeries.findMany = originalFindMany as typeof prisma.examSeries.findMany
     }
   })
 
