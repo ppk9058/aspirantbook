@@ -1,5 +1,4 @@
 import React from "react"
-import { safeJsonLdStringify } from "@/lib/seo/core"
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
@@ -9,8 +8,7 @@ import { toSafeCourseDto } from "@/lib/courses/course-dto"
 
 export const dynamic = "force-dynamic"
 
-import { adaptTutorialDetailSeo } from "@/lib/seo/adapters/tutorials"
-import { getBaseUrl } from "@/lib/seo/core"
+import { adaptTutorialDetailSeo, buildTutorialDetailJsonLd, SeoJsonLd } from "@/lib/seo"
 
 export async function generateMetadata({
     params,
@@ -182,41 +180,18 @@ export default async function TutorialSlugPage({
 
     const safeCourse = toSafeCourseDto(course, hasAccess, hasAccess)
 
-    // Paywalled or public schema.org metadata for search crawlers
-    const jsonLd = course.isGated
-        ? {
-              "@context": "https://schema.org",
-              "@type": "TechArticle",
-              name: course.title,
-              headline: course.title,
-              description: course.description,
-              isAccessibleForFree: false,
-              hasPart: {
-                  "@type": "WebPageElement",
-                  isAccessibleForFree: false,
-                  cssSelector: "[role='region'][aria-label='Content Gate']",
-              },
-          }
-        : {
-              "@context": "https://schema.org",
-              "@type": "Course",
-              name: course.title,
-              description: course.description,
-              provider: {
-                  "@type": "Organization",
-                  name: "AspirantBook",
-                  url: getBaseUrl() || (process.env.NODE_ENV === "production" ? "https://aspirantbook.com" : "http://127.0.0.1:3045"),
-              },
-          }
+    // Engine-built BreadcrumbList (Home > Tutorials > real title) plus the
+    // gated TechArticle / open Course schema.
+    const jsonLd = buildTutorialDetailJsonLd({
+        title: course.title,
+        slug: course.slug || slug,
+        description: course.description,
+        isGated: Boolean(course.isGated),
+    })
 
     return (
         <>
-            {jsonLd && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
-                />
-            )}
+            <SeoJsonLd schemas={jsonLd} />
             <AspirantbookTutorialView
                 course={safeCourse as any}
                 chapters={safeCourse.chapters as any}

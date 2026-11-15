@@ -1,8 +1,8 @@
 import React from "react"
 import { Metadata } from "next"
-import { getBookBySlug, getBookById } from "@/lib/books/bookService"
+import { getBookBySlug, getBookById, getBookRatingSignals } from "@/lib/books/bookService"
 import BookDetailsClient from "@/components/books/BookDetailsClient"
-import { safeJsonLdStringify } from "@/lib/seo/core"
+import { adaptBookDetailSeo, buildBookDetailJsonLd, SeoJsonLd } from "@/lib/seo"
 
 interface BookPageProps {
   params: Promise<{ slug: string }>
@@ -19,70 +19,22 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
     }
   }
 
-  const title = `${book.title} - ${book.author} | AspirantBook`
-  const description =
-    book.shortDescription ||
-    book.description?.slice(0, 160) ||
-    "Buy and read authentic digital PDF notes and eBooks instantly on AspirantBook."
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: `/books/${book.slug || slug}`,
-    },
-    openGraph: {
-      title,
-      description,
-      type: "book",
-      images: book.coverImage ? [book.coverImage] : [],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: book.coverImage ? [book.coverImage] : [],
-    },
-  }
+  return adaptBookDetailSeo(book).metadata
 }
 
 export default async function BookDetailsPage({ params }: BookPageProps) {
   const { slug } = await params
   const book = (await getBookBySlug(slug)) || (await getBookById(slug))
 
-  const jsonLd = book
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": book.title,
-        "description": book.shortDescription || book.description?.slice(0, 200),
-        "image": book.coverImage ? [book.coverImage] : undefined,
-        "offers": {
-          "@type": "Offer",
-          "price": book.price,
-          "priceCurrency": "INR",
-          "availability": "https://schema.org/InStock",
-        },
-        ...(book.rating && book.ratingCount
-          ? {
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": book.rating,
-                "reviewCount": book.ratingCount,
-              },
-            }
-          : {}),
-      }
-    : null
+  // Read the stored row, not the mapped book: bookService fills 4.8 / 1 when
+  // the database has no rating, which must never reach schema.org.
+  const ratingSignals = book ? await getBookRatingSignals(book.slug || slug) : null
+
+  const jsonLd = book ? buildBookDetailJsonLd(book, ratingSignals) : []
 
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
-        />
-      )}
+      <SeoJsonLd schemas={jsonLd} />
       <BookDetailsClient initialBook={book} slug={slug} />
     </>
   )

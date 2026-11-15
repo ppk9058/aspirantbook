@@ -18,6 +18,7 @@ export function adaptCurrentAffairsCatalogSeo(baseUrl?: string): SharedSeoOutput
       title,
       description,
       canonicalPath,
+      titleAbsolute: true,
       isPublished: true,
       breadcrumbs: [
         { name: "Home", url: canonicalUrl("/", baseUrl) },
@@ -67,6 +68,7 @@ export function adaptCurrentAffairsQuizSeo(
       title,
       description,
       canonicalPath,
+      titleAbsolute: true,
       isPublished: quiz.isPublished ?? true,
       openGraph: {
         title: `${quiz.title} - Daily Current Affairs Speed Test`,

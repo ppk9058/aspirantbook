@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Home, ClipboardList, BookOpen, Zap } from "lucide-react"
 import { getDashboardHref } from "@/lib/auth/roles"
+import { usePassStatus } from "@/lib/auth/usePassStatus"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 interface MobileNativeBottomBarProps {
     hasActivePass?: boolean
@@ -11,6 +12,10 @@ interface MobileNativeBottomBarProps {
 export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBottomBarProps) {
     const pathname = usePathname()
     const { data: session } = useSession()
+    // The landing page no longer reads the session on the server (it must stay
+    // ISR), so the bar resolves the same database entitlement on the client.
+    const passStatus = usePassStatus()
+    const activePass = hasActivePass ?? passStatus.hasActivePass
     const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
     // 1. Hide completely on full-screen flows:
     // - Test attempt: /test-series/[id]/attempt, /assessments/[id]/take
@@ -77,7 +82,7 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
             href: "/pricing",
             icon: Zap,
             isActive: isPassActive,
-            badge: hasActivePass ? "ACTIVE" : undefined,
+            badge: activePass ? "ACTIVE" : undefined,
         },
         {
             name: "Tests",

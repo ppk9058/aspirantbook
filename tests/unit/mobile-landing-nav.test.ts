@@ -222,6 +222,7 @@ describe("mobile landing nav — Change 3: the pill row is removed everywhere", 
   it("the six destinations are in the desktop header and the mobile drawer", () => {
     const page = readRepoFile("app/page.tsx")
     const drawer = readRepoFile("components/layout/MobileDrawer.tsx")
+    const nav = readRepoFile("lib/navigation/landing-nav.ts")
 
     // Desktop header still maps LANDING_NAV_ITEMS
     assert.match(page, /\{LANDING_NAV_ITEMS\.map\(\(item\) =>/)
@@ -231,14 +232,51 @@ describe("mobile landing nav — Change 3: the pill row is removed everywhere", 
       "/test-series", // Test Series
       "/tutorials", // Learn
       "/#all-courses-container", // School Prep
-      "/dashboard?goal=upsc", // UPSC
-      "/dashboard?goal=bpsc", // BPSC
+      // SEO PR A: exam tracks are real crawlable URLs. The old
+      // /dashboard?goal=… links redirect anonymous crawlers to /login.
+      "/pyqs/upsc", // UPSC
+      "/pyqs/bpsc", // BPSC
     ]
     for (const href of hrefs) {
       assert.ok(
         drawer.includes(`href: "${href}"`),
         `drawer is missing a link for ${href}`
       )
+    }
+
+    // The desktop header renders LANDING_NAV_ITEMS, so the same destinations
+    // must exist in the shared nav config. The School Prep anchor is written
+    // without a leading slash in the nav config (same target on the page).
+    const desktopHrefs = hrefs.map((href) =>
+      href === "/#all-courses-container" ? "#all-courses-container" : href
+    )
+    for (const href of desktopHrefs) {
+      assert.ok(
+        nav.includes(`href: "${href}"`),
+        `desktop nav is missing a link for ${href}`
+      )
+    }
+
+    // The old goal-param destinations must not come back on either surface.
+    for (const stale of ["/dashboard?goal=upsc", "/dashboard?goal=bpsc"]) {
+      assert.ok(!drawer.includes(stale), `drawer still points at ${stale}`)
+      assert.ok(!nav.includes(stale), `desktop nav still points at ${stale}`)
+    }
+  })
+
+  it("footer and drawer expose the crawlable library links", () => {
+    const footer = readRepoFile("components/layout/Footer.tsx")
+    const drawer = readRepoFile("components/layout/MobileDrawer.tsx")
+
+    // Same destinations on both surfaces: SEO PR A made these crawlable.
+    for (const href of [
+      "/tutorials",
+      "/current-affairs-quizzes",
+      "/question-answer",
+      "/hi/question-answer",
+    ]) {
+      assert.ok(footer.includes(`href="${href}"`), `footer is missing a link for ${href}`)
+      assert.ok(drawer.includes(`href: "${href}"`), `drawer is missing a link for ${href}`)
     }
   })
 })

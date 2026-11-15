@@ -4,11 +4,14 @@ import Image from "next/image"
 import BrandLogo from "@/components/brand/BrandLogo"
 import { ArrowLeft, BookOpen, Building2, CheckCircle2, FileText, Mail, MapPin, Phone, Clock, ShieldCheck } from "lucide-react"
 import { getBrandConfig } from "@/lib/config/brand"
+import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
 
-export const metadata = {
+export const metadata = adaptStaticPageSeo({
   title: "About Us | AspirantBook",
   description: "Learn about AspirantBook, an online learning platform offering digital courses, test series, and study resources for competitive exam aspirants.",
-}
+  canonicalPath: "/about",
+  titleAbsolute: true,
+}).metadata
 
 export default function AboutPage() {
   const brand = getBrandConfig()

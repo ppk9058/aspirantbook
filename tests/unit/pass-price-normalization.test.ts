@@ -66,7 +66,11 @@ test("lib/payments/razorpay.ts: unused RAZORPAY_PLANS deleted", () => {
 })
 
 test("test-series surfaces show ₹499 / year next to Get Pass", () => {
-    const pageFile = fs.readFileSync(path.join(ROOT, "app/(dashboard)/test-series/page.tsx"), "utf8")
+    // The list markup moved into the client component when /test-series became a
+    // static server shell (SEO PR A); read the shell + client union.
+    const pageFile =
+        fs.readFileSync(path.join(ROOT, "app/(dashboard)/test-series/page.tsx"), "utf8") +
+        fs.readFileSync(path.join(ROOT, "components/exam/TestSeriesListingClient.tsx"), "utf8")
     assert.ok(pageFile.includes("₹499 / year"), "Test series page banner and modal must show ₹499 / year")
 
     const clientFile = fs.readFileSync(path.join(ROOT, "app/(dashboard)/test-series/[id]/TestSeriesDetailClient.tsx"), "utf8")

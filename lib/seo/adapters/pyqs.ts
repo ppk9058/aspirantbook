@@ -13,6 +13,7 @@ export function adaptPyqsCatalogSeo(baseUrl?: string): SharedSeoOutput {
       title,
       description,
       canonicalPath,
+      titleAbsolute: true,
       isPublished: true,
       breadcrumbs: [
         { name: "Home", url: canonicalUrl("/", baseUrl) },
@@ -43,6 +44,7 @@ export function adaptPyqCategorySeo(
       title,
       description,
       canonicalPath,
+      titleAbsolute: true,
       isPublished: category.isPublished ?? true,
       breadcrumbs: [
         { name: "Home", url: canonicalUrl("/", baseUrl) },

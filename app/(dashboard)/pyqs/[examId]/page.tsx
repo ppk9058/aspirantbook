@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { safeJsonLdStringify } from "@/lib/seo/core"
+import { SeoJsonLd } from "@/lib/seo"
 import { ensureDefaultPyqData, getAllPapers } from "@/lib/pyqs-service"
 import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClient"
 import Link from "next/link"
@@ -129,14 +129,9 @@ export default async function ExamCategoryDetailPage({
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {seo.jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: safeJsonLdStringify(Array.isArray(seo.jsonLd) ? seo.jsonLd[0] : seo.jsonLd),
-          }}
-        />
-      )}
+      <SeoJsonLd
+        schemas={Array.isArray(seo.jsonLd) ? seo.jsonLd : seo.jsonLd ? [seo.jsonLd] : []}
+      />
       {/* Navigation Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
         <Link href="/pyqs" className="hover:text-primary transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-1.5 py-0.5">

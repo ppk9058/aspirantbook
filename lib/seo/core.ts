@@ -196,6 +196,95 @@ export function buildQuizJsonLd(opts: {
 }
 
 /**
+ * Schema.org Course generator.
+ */
+export function buildCourseJsonLd(opts: {
+  name: string
+  description?: string | null
+  url?: string
+  providerName?: string
+  providerUrl?: string
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: opts.name,
+    ...(opts.description ? { description: opts.description } : {}),
+    ...(opts.url ? { url: opts.url } : {}),
+    provider: {
+      "@type": "Organization",
+      name: opts.providerName || SITE_NAME,
+      ...(opts.providerUrl ? { sameAs: opts.providerUrl } : {}),
+    },
+  }
+}
+
+/**
+ * Schema.org ItemList generator for catalogue pages.
+ */
+export function buildItemListJsonLd(opts: {
+  name: string
+  items: Array<{ name: string; url: string }>
+  itemListOrder?: "Ascending" | "Descending"
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: opts.name,
+    ...(opts.itemListOrder ? { itemListOrder: opts.itemListOrder } : {}),
+    numberOfItems: opts.items.length,
+    itemListElement: opts.items.map((item, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  }
+}
+
+/**
+ * Schema.org Product generator. `aggregateRating` is attached only when a
+ * caller passes values that were read from real database fields.
+ */
+export function buildProductJsonLd(opts: {
+  name: string
+  description?: string | null
+  image?: string | null
+  url?: string
+  price?: number | null
+  currency?: string
+  aggregateRating?: { ratingValue: number; reviewCount: number } | null
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: opts.name,
+    ...(opts.description ? { description: opts.description } : {}),
+    ...(opts.image ? { image: [opts.image] } : {}),
+    ...(opts.url ? { url: opts.url } : {}),
+    ...(typeof opts.price === "number"
+      ? {
+          offers: {
+            "@type": "Offer",
+            price: opts.price,
+            priceCurrency: opts.currency || "INR",
+            availability: "https://schema.org/InStock",
+          },
+        }
+      : {}),
+    ...(opts.aggregateRating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: opts.aggregateRating.ratingValue,
+            reviewCount: opts.aggregateRating.reviewCount,
+          },
+        }
+      : {}),
+  }
+}
+
+/**
  * Schema.org Article / TechArticle generator.
  */
 export function buildArticleJsonLd(opts: {
@@ -329,7 +418,7 @@ export function buildMetadata(
     : undefined
 
   const metadata: Metadata = {
-    title: input.title,
+    title: input.titleAbsolute ? { absolute: input.title } : input.title,
     description: input.description,
     alternates,
     robots,

@@ -4,11 +4,14 @@ import Image from "next/image"
 import BrandLogo from "@/components/brand/BrandLogo"
 import { ShieldCheck, ArrowLeft, Trash2, Mail, Lock, FileText, Server, AlertCircle } from "lucide-react"
 import { getBrandConfig } from "@/lib/config/brand"
+import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
 
-export const metadata = {
+export const metadata = adaptStaticPageSeo({
   title: "Privacy Policy | AspirantBook",
   description: "Learn how AspirantBook collects, protects, and manages your personal learning data, exam results, and account information.",
-}
+  canonicalPath: "/privacy",
+  titleAbsolute: true,
+}).metadata
 
 export default function PrivacyPolicyPage() {
   const brand = getBrandConfig()

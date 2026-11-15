@@ -1,5 +1,4 @@
 import React, { Suspense } from "react"
-import { safeJsonLdStringify } from "@/lib/seo/core"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { notFound, permanentRedirect } from "next/navigation"
@@ -14,7 +13,7 @@ import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser, isCourseDetailReady } from "@/lib/courses/visibility"
 import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { AlertCircle } from "lucide-react"
-import { getBaseUrl, SITE_NAME } from "@/lib/seo/core"
+import { buildCourseDetailJsonLd, SeoJsonLd } from "@/lib/seo"
 
 import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
 import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema"
@@ -97,7 +96,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
 
     return {
-        title: `${course.title} | AspirantBook`,
+        // Absolute: the root layout template would otherwise append
+        // "| AspirantBook" to a title that already carries it.
+        title: { absolute: `${course.title} | AspirantBook` },
         description: course.description || `Enroll in ${course.title} on AspirantBook`,
         alternates: {
             canonical: `/courses/${course.slug || slug}`,
@@ -212,15 +213,24 @@ export default async function CourseDetailPage({
         const staticCourse = ALL_GOAL_COURSES.find((c) => c.slug === slug || c.id === slug)
         if (staticCourse) {
             return (
-                <CourseComingSoonView
-                    slug={staticCourse.slug}
-                    title={staticCourse.title}
-                    classTag={staticCourse.category || "Video Course"}
-                    targetText={staticCourse.description}
-                    scheduleText={staticCourse.duration}
-                    price={staticCourse.isPremium ? "Premium Batch" : "Free Access"}
-                    image={staticCourse.thumbnailUrl}
-                />
+                <>
+                    <SeoJsonLd
+                        schemas={buildCourseDetailJsonLd({
+                            title: staticCourse.title,
+                            slug: staticCourse.slug,
+                            description: staticCourse.description,
+                        })}
+                    />
+                    <CourseComingSoonView
+                        slug={staticCourse.slug}
+                        title={staticCourse.title}
+                        classTag={staticCourse.category || "Video Course"}
+                        targetText={staticCourse.description}
+                        scheduleText={staticCourse.duration}
+                        price={staticCourse.isPremium ? "Premium Batch" : "Free Access"}
+                        image={staticCourse.thumbnailUrl}
+                    />
+                </>
             )
         }
         notFound()
@@ -247,6 +257,7 @@ export default async function CourseDetailPage({
     if (!isReady) {
         return (
             <>
+                <SeoJsonLd schemas={buildCourseDetailJsonLd(course)} />
                 {draftBanner}
                 <CourseComingSoonView
                     slug={course.slug || course.id}
@@ -458,6 +469,7 @@ export default async function CourseDetailPage({
         }
         return (
             <>
+                <SeoJsonLd schemas={buildCourseDetailJsonLd(course)} />
                 {draftBanner}
                 <CourseBundleView
                     course={safeCourse as any}
@@ -500,24 +512,12 @@ export default async function CourseDetailPage({
         } catch {}
     }
 
-    const courseJsonLd = {
-        "@context": "https://schema.org",
-        "@type": "Course",
-        "name": course.title,
-        "description": course.description || undefined,
-        "provider": {
-            "@type": "Organization",
-            "name": SITE_NAME,
-            ...(getBaseUrl() ? { "sameAs": getBaseUrl() } : {}),
-        },
-    }
+    // Engine-built BreadcrumbList (Home > Courses > real title) + Course schema.
+    const courseJsonLd = buildCourseDetailJsonLd(course)
 
     return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(courseJsonLd) }}
-            />
+            <SeoJsonLd schemas={courseJsonLd} />
             {draftBanner}
             <CourseDetailView
                 initialCourse={safeCourse as any}

@@ -4,11 +4,14 @@ import Image from "next/image"
 import BrandLogo from "@/components/brand/BrandLogo"
 import { ArrowLeft, RefreshCw, AlertCircle, FileText, HelpCircle, Mail, ShieldAlert, ShieldCheck } from "lucide-react"
 import { getBrandConfig } from "@/lib/config/brand"
+import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
 
-export const metadata = {
+export const metadata = adaptStaticPageSeo({
   title: "Cancellation & Refund Policy | AspirantBook",
   description: "Read the official cancellation and refund policy for AspirantBook digital courses, live batches, test series, and ePDF books.",
-}
+  canonicalPath: "/refund",
+  titleAbsolute: true,
+}).metadata
 
 export default function RefundPolicyPage() {
   const brand = getBrandConfig()

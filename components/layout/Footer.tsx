@@ -45,6 +45,26 @@ export default function Footer() {
                   Previous Year Papers
                 </Link>
               </li>
+              <li>
+                <Link href="/tutorials" className="hover:text-slate-950 dark:hover:text-white transition-colors">
+                  Tutorials &amp; Articles
+                </Link>
+              </li>
+              <li>
+                <Link href="/current-affairs-quizzes" className="hover:text-slate-950 dark:hover:text-white transition-colors">
+                  Current Affairs Quizzes
+                </Link>
+              </li>
+              <li>
+                <Link href="/question-answer" className="hover:text-slate-950 dark:hover:text-white transition-colors">
+                  Question &amp; Answers
+                </Link>
+              </li>
+              <li>
+                <Link href="/hi/question-answer" className="hover:text-slate-950 dark:hover:text-white transition-colors">
+                  Q&amp;A in Hindi
+                </Link>
+              </li>
             </ul>
           </div>
 

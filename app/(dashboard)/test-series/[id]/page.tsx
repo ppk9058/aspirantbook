@@ -1,5 +1,5 @@
 import { notFound, permanentRedirect } from "next/navigation"
-import { safeJsonLdStringify } from "@/lib/seo/core"
+import { SeoJsonLd } from "@/lib/seo"
 import { Metadata } from "next"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
@@ -191,31 +191,33 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
         isFree: fullSeries.isFree,
     })
 
-    const jsonLd = isUnpublishedOrArchived
-        ? null
+    // Render every engine-built schema (BreadcrumbList + Product). Gated
+    // series swap the Product for a paywalled Course but keep the breadcrumb.
+    const jsonLd: Array<Record<string, unknown>> = isUnpublishedOrArchived
+        ? []
         : fullSeries.isGated
-        ? {
-              "@context": "https://schema.org",
-              "@type": "Course",
-              name: fullSeries.title,
-              description: cleanDescription,
-              isAccessibleForFree: false,
-              hasPart: {
-                  "@type": "WebPageElement",
+        ? [
+              {
+                  "@context": "https://schema.org",
+                  "@type": "Course",
+                  name: fullSeries.title,
+                  description: cleanDescription,
                   isAccessibleForFree: false,
-                  cssSelector: "[role='region'][aria-label='Content Gate']",
+                  hasPart: {
+                      "@type": "WebPageElement",
+                      isAccessibleForFree: false,
+                      cssSelector: "[role='region'][aria-label='Content Gate']",
+                  },
               },
-          }
-        : seoPackage.jsonLd?.[0] || null
+              ...(seoPackage.jsonLd || []).filter(
+                  (schema) => schema["@type"] === "BreadcrumbList"
+              ),
+          ]
+        : seoPackage.jsonLd || []
 
     return (
         <>
-            {jsonLd && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
-                />
-            )}
+            <SeoJsonLd schemas={jsonLd} />
             <TestSeriesDetailClient initialSeries={initialSeries} />
         </>
     )

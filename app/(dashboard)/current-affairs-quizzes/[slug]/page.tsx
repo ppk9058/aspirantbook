@@ -20,7 +20,8 @@ import { resolveAccess } from "@/lib/authwall/resolveAccess"
 import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
-import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
+import { getBaseUrl } from "@/lib/seo/core"
+import { SeoJsonLd } from "@/lib/seo"
 
 export const dynamic = "force-dynamic"
 
@@ -106,11 +107,8 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* JSON-LD Script */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
-      />
+      {/* JSON-LD via the shared engine render path (escaped, single source). */}
+      <SeoJsonLd schemas={[jsonLd]} />
 
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
