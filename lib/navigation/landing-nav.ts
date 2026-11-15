@@ -25,10 +25,10 @@ export const LANDING_NAV_ITEMS: LandingNavItem[] = [
     },
     {
         name: "UPSC",
-        href: "/dashboard?goal=upsc",
+        href: "/pyqs/upsc",
     },
     {
         name: "BPSC",
-        href: "/dashboard?goal=bpsc",
+        href: "/pyqs/bpsc",
     },
 ]

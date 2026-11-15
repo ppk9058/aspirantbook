@@ -25,6 +25,8 @@ import {
     ClipboardCheck,
     School,
     Target,
+    HelpCircle,
+    Languages,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { safeSignOut } from "@/lib/auth-client"
@@ -103,6 +105,8 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
         { name: "Previous Year Papers (PYQs)", href: "/pyqs", icon: FileText, section: "explore", testId: "mobile-drawer-pyqs" },
         { name: "Current Affairs & Quizzes", href: "/current-affairs-quizzes", icon: Newspaper, section: "explore", testId: "mobile-drawer-current-affairs" },
         { name: "Tutorials & Articles", href: "/tutorials", icon: GraduationCap, section: "explore", testId: "mobile-drawer-tutorials" },
+        { name: "Question & Answers", href: "/question-answer", icon: HelpCircle, section: "explore", testId: "mobile-drawer-question-answer" },
+        { name: "Q&A in Hindi", href: "/hi/question-answer", icon: Languages, section: "explore", testId: "mobile-drawer-question-answer-hi" },
         { name: "Coding Practice", href: "/practice", icon: Code2, section: "explore", testId: "mobile-drawer-practice" },
     ]
 
@@ -110,8 +114,8 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
     // below lg, so every pill destination is reachable from this drawer.
     const examTrackItems = [
         { name: "School Prep", href: "/#all-courses-container", icon: School, testId: "mobile-drawer-school-prep" },
-        { name: "UPSC", href: "/dashboard?goal=upsc", icon: Target, testId: "mobile-drawer-upsc" },
-        { name: "BPSC", href: "/dashboard?goal=bpsc", icon: Target, testId: "mobile-drawer-bpsc" },
+        { name: "UPSC", href: "/pyqs/upsc", icon: Target, testId: "mobile-drawer-upsc" },
+        { name: "BPSC", href: "/pyqs/bpsc", icon: Target, testId: "mobile-drawer-bpsc" },
     ]
 
     // Legal, pricing and support pages. Razorpay live review requires every

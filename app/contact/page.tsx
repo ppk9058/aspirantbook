@@ -5,11 +5,14 @@ import BrandLogo from "@/components/brand/BrandLogo"
 import { ArrowLeft, Building2, Mail, Phone, MapPin, Clock, ShieldCheck } from "lucide-react"
 import { ContactFormClient } from "./ContactFormClient"
 import { getBrandConfig } from "@/lib/config/brand"
+import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
 
-export const metadata = {
+export const metadata = adaptStaticPageSeo({
   title: "Contact Us | AspirantBook",
   description: "Get in touch with the AspirantBook support team for academic doubts, technical assistance, or order inquiries.",
-}
+  canonicalPath: "/contact",
+  titleAbsolute: true,
+}).metadata
 
 export default function ContactPage() {
   const brand = getBrandConfig()

@@ -14,13 +14,13 @@ import LandingWhySection from "@/components/landing/LandingWhySection"
 import LandingStep3Section from "@/components/landing/LandingStep3Section"
 import LandingStep4Section from "@/components/landing/LandingStep4Section"
 import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
-import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
+import { adaptHomeSeo, buildHomeJsonLd, SeoJsonLd } from "@/lib/seo"
 import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
 import { resolveAnchorHref } from "@/lib/home/real-batches"
-import { auth } from "@/auth"
-import { hasActivePass } from "@/lib/auth/entitlements"
 
-export const revalidate = 60 // Revalidate every 60s
+export const metadata = adaptHomeSeo().metadata
+
+export const revalidate = 3600
 
 // Colourful, mobile-first value pillars. One accent per pillar keeps the grid
 // vibrant without inventing any metrics or fake numbers.
@@ -66,53 +66,15 @@ export default async function LandingHomePage() {
     // C1: no `auth()` here. Reading the session on the server made this route
     // dynamic and defeated `revalidate = 60`; the two pieces of the header that
     // depend on the session now read it on the client.
-    const baseUrl = getBaseUrl()
     const hasRealBatches = await hasRealBatchesAvailable()
-    
-    // Get session for bottom nav pass status
-    const session = await auth()
-    // Database-only entitlement for the bottom nav ACTIVE badge.
-    const passActive = await hasActivePass(session?.user?.id)
-    const homeJsonLd = baseUrl
-        ? {
-              "@context": "https://schema.org",
-              "@graph": [
-                  {
-                      "@type": "Organization",
-                      "@id": `${baseUrl}/#organization`,
-                      "name": "AspirantBook",
-                      "url": baseUrl,
-                      "logo": {
-                          "@type": "ImageObject",
-                          "url": `${baseUrl}/aspirant-logo.jpg`,
-                      },
-                  },
-                  {
-                      "@type": "WebSite",
-                      "@id": `${baseUrl}/#website`,
-                      "url": baseUrl,
-                      "name": "AspirantBook",
-                      "publisher": {
-                          "@id": `${baseUrl}/#organization`,
-                      },
-                      "potentialAction": {
-                          "@type": "SearchAction",
-                          "target": `${baseUrl}/courses?search={search_term_string}`,
-                          "query-input": "required name=search_term_string",
-                      },
-                  },
-              ],
-          }
-        : null
+    // Engine-built Organization + WebSite graph. Reading the session here would
+    // make the route dynamic and defeat ISR, so the bottom bar resolves its
+    // own pass entitlement on the client.
+    const homeJsonLd = buildHomeJsonLd()
 
     return (
         <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
-            {homeJsonLd && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(homeJsonLd) }}
-                />
-            )}
+            <SeoJsonLd schemas={[homeJsonLd]} />
 
             {/* Top Navigation Bar — sticky, compact on phones */}
             <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg dark:border-white/10 dark:bg-gray-950/85">
@@ -280,7 +242,7 @@ export default async function LandingHomePage() {
             <Footer />
             
             {/* Mobile Bottom Navigation (phones only) */}
-            <MobileNativeBottomBar hasActivePass={passActive} />
+            <MobileNativeBottomBar />
         </div>
     )
 }

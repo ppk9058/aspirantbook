@@ -1,15 +1,12 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { unstable_cache } from "next/cache"
-import { Metadata } from "next"
 import CurrentAffairsQuizzesClient from "@/components/quizzes/CurrentAffairsQuizzesClient"
+import { adaptCurrentAffairsCatalogSeo } from "@/lib/seo/adapters/current-affairs"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
-  title: "Current Affairs and Quizzes | AspirantBook",
-  description: "Daily speed tests, monthly current affairs roundups, and general awareness quizzes for competitive examinations.",
-}
+export const metadata = adaptCurrentAffairsCatalogSeo().metadata
 
 export default async function CurrentAffairsQuizzesPage() {
   const session = await auth()

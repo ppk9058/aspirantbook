@@ -1,15 +1,12 @@
-import { Metadata } from "next"
 import { unstable_cache } from "next/cache"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { TutorialsClientView, TutorialItem } from "./TutorialsClientView"
+import { adaptTutorialsCatalogSeo } from "@/lib/seo/adapters/tutorials"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
-    title: "Text-Based Tutorials | AspirantBook",
-    description: "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio.",
-}
+export const metadata = adaptTutorialsCatalogSeo().metadata
 
 const FALLBACK_TUTORIALS: TutorialItem[] = [
     {

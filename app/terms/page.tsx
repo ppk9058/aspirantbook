@@ -3,11 +3,14 @@ import Link from "next/link"
 import Image from "next/image"
 import BrandLogo from "@/components/brand/BrandLogo"
 import { ShieldCheck, ArrowLeft, BookOpen, AlertCircle, FileText } from "lucide-react"
+import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
 
-export const metadata = {
+export const metadata = adaptStaticPageSeo({
   title: "Terms and Conditions | AspirantBook",
   description: "Terms and Conditions governing the use of AspirantBook learning platform, mock tests, and digital educational content.",
-}
+  canonicalPath: "/terms",
+  titleAbsolute: true,
+}).metadata
 
 export default function TermsPage() {
   return (

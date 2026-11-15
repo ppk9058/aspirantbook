@@ -7,11 +7,14 @@ import PassFAQAccordion from "@/components/pricing/PassFAQAccordion"
 import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
 import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
 import { hasActivePass } from "@/lib/auth/entitlements"
+import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
 
-export const metadata = {
-    title: "AspirantBook Pass - Unlock All Exams | AspirantBook",
-    description: "Get unlimited access to test series, PYQs, current affairs, quizzes and tutorials for all exams with AspirantBook Pass at Rs 499/year",
-}
+export const metadata = adaptStaticPageSeo({
+  title: "AspirantBook Pass - Unlock All Exams | AspirantBook",
+  description: "Get unlimited access to test series, PYQs, current affairs, quizzes and tutorials for all exams with AspirantBook Pass at Rs 499/year",
+  canonicalPath: "/pricing",
+  titleAbsolute: true,
+}).metadata
 
 export default async function PricingPage() {
     const session = await auth()

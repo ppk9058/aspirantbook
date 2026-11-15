@@ -14,10 +14,22 @@ export interface SeoHreflangLinks {
   [key: string]: string | undefined
 }
 
+export interface SeoImage {
+  url: string
+  width?: number
+  height?: number
+  alt?: string
+}
+
 export interface SharedSeoInput {
   title: string
   description: string
   canonicalPath: string
+  /**
+   * Emit the title as-is instead of letting the root layout's `%s | AspirantBook`
+   * template append the site name a second time.
+   */
+  titleAbsolute?: boolean
   locale?: SupportedLocale
   isPublished?: boolean
   isIndexable?: boolean
@@ -26,7 +38,7 @@ export interface SharedSeoInput {
     title?: string
     description?: string
     type?: "website" | "article"
-    images?: string[]
+    images?: Array<string | SeoImage>
   }
   hindiTwin?: {
     canonicalPath: string

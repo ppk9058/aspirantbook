@@ -1,22 +1,42 @@
-import { buildMetadata, buildSeoPackage, canonicalUrl } from "../core"
+import { buildMetadata, buildSeoPackage, buildItemListJsonLd, canonicalUrl } from "../core"
 import type { SharedSeoOutput } from "../types"
 
-export function adaptTestSeriesCatalogSeo(baseUrl?: string): SharedSeoOutput {
+export function adaptTestSeriesCatalogSeo(
+  baseUrl?: string,
+  series?: Array<{ title: string; slug?: string | null }>
+): SharedSeoOutput {
   const canonicalPath = "/test-series"
   const title = "Online Test Series & Mock Exams | AspirantBook"
   const description =
     "Practice online test series, full mocks, and subject-wise tests with real-time ranking and detailed solutions."
+
+  const seriesItems = (series || [])
+    .filter((s) => Boolean(s.slug))
+    .map((s) => ({
+      name: s.title,
+      url: canonicalUrl(`/test-series/${s.slug}`, baseUrl),
+    }))
 
   return buildSeoPackage(
     {
       title,
       description,
       canonicalPath,
+      titleAbsolute: true,
       isPublished: true,
       breadcrumbs: [
         { name: "Home", url: canonicalUrl("/", baseUrl) },
         { name: "Test Series", url: canonicalUrl(canonicalPath, baseUrl) },
       ],
+      jsonLd:
+        seriesItems.length > 0
+          ? [
+              buildItemListJsonLd({
+                name: "Online Test Series & Mock Exams",
+                items: seriesItems,
+              }),
+            ]
+          : [],
     },
     baseUrl
   )
@@ -89,6 +109,7 @@ export function adaptTestSeriesDetailSeo(
       title,
       description,
       canonicalPath,
+      titleAbsolute: true,
       isPublished: isAvailable,
       breadcrumbs: [
         { name: "Home", url: canonicalUrl("/", baseUrl) },

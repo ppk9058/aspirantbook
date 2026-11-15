@@ -1,22 +1,11 @@
 export const dynamic = "force-dynamic"
 
-import { Metadata } from "next"
 import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+import { adaptCoursesCatalogSeo } from "@/lib/seo/adapters/courses"
 
-export const metadata: Metadata = {
-    title: "All Video Courses & Batches | AspirantBook",
-    description: "Explore all comprehensive video courses, academic foundations, and competitive batches on AspirantBook.",
-    alternates: {
-        canonical: "/courses",
-    },
-    openGraph: {
-        title: "All Video Courses & Batches | AspirantBook",
-        description: "Explore all comprehensive video courses, academic foundations, and competitive batches on AspirantBook.",
-        url: "/courses",
-    },
-}
+export const metadata = adaptCoursesCatalogSeo().metadata
 import CourseClient from "@/components/courses/CourseClient"
 import Footer from "@/components/layout/Footer"
 import { classifyCourse } from "@/lib/course-classifier"

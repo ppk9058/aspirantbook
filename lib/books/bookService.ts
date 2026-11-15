@@ -325,6 +325,34 @@ export async function getBookById(id: string): Promise<Book | null> {
   return row ? bookRowToBook(row) : null
 }
 
+/**
+ * Rating signals exactly as stored in the book row (the `data` JSON), without
+ * the placeholder fallbacks applied by the row mapper. Used by schema.org so
+ * AggregateRating is only emitted when the database contains a real rating.
+ */
+export async function getBookRatingSignals(
+  slugOrId: string
+): Promise<{ ratingValue: number; reviewCount: number } | null> {
+  if (!slugOrId) return null
+  const row = await prisma.book.findFirst({
+    where: { OR: [{ slug: slugOrId }, { id: slugOrId }] },
+    select: { data: true },
+  })
+  if (!row) return null
+
+  const data = (row.data || {}) as Record<string, unknown>
+  const ratingValue = Number(data.rating)
+  const ratingCount = Number(data.ratingCount)
+  if (!Number.isFinite(ratingValue) || ratingValue <= 0) return null
+  if (!Number.isFinite(ratingCount) || ratingCount <= 0) return null
+
+  const reviewCount = Number(data.reviewCount)
+  return {
+    ratingValue,
+    reviewCount: Number.isFinite(reviewCount) && reviewCount > 0 ? reviewCount : ratingCount,
+  }
+}
+
 export async function getBookBySlug(slug: string): Promise<Book | null> {
   if (!slug) return null
   const row = await prisma.book.findUnique({ where: { slug } })

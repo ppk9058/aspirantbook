@@ -2,6 +2,8 @@ import {
   buildMetadata,
   buildSeoPackage,
   buildArticleJsonLd,
+  buildBreadcrumbListJsonLd,
+  buildCourseJsonLd,
   canonicalUrl,
   getBaseUrl,
 } from "../core"
@@ -18,6 +20,7 @@ export function adaptTutorialsCatalogSeo(baseUrl?: string): SharedSeoOutput {
       title,
       description,
       canonicalPath,
+      titleAbsolute: true,
       isPublished: true,
       breadcrumbs: [
         { name: "Home", url: canonicalUrl("/", baseUrl) },
@@ -71,4 +74,56 @@ export function adaptTutorialDetailSeo(
     },
     cleanBase
   )
+}
+
+/**
+ * JSON-LD for a tutorial detail page: BreadcrumbList (Home > Tutorials > real
+ * title from the database row) plus the content schema. Gated content keeps
+ * the paywalled TechArticle shape; open tutorials get a Course schema.
+ */
+export function buildTutorialDetailJsonLd(
+  course: {
+    title: string
+    slug: string
+    description?: string | null
+    isGated?: boolean
+  },
+  baseUrl?: string
+): Array<Record<string, unknown>> {
+  const base = getBaseUrl(baseUrl)
+  const canonicalPath = `/tutorials/${course.slug}`
+  const url = canonicalUrl(canonicalPath, base)
+
+  const contentSchema = course.isGated
+    ? {
+        ...buildArticleJsonLd({
+          type: "TechArticle",
+          headline: course.title,
+          description: course.description || "",
+          url,
+          isAccessibleForFree: false,
+        }),
+        name: course.title,
+        hasPart: {
+          "@type": "WebPageElement",
+          isAccessibleForFree: false,
+          cssSelector: "[role='region'][aria-label='Content Gate']",
+        },
+      }
+    : buildCourseJsonLd({
+        name: course.title,
+        description: course.description,
+        url,
+        providerName: "AspirantBook",
+        providerUrl: base || undefined,
+      })
+
+  return [
+    buildBreadcrumbListJsonLd([
+      { name: "Home", url: canonicalUrl("/", base) },
+      { name: "Tutorials", url: canonicalUrl("/tutorials", base) },
+      { name: course.title, url },
+    ]),
+    contentSchema,
+  ]
 }

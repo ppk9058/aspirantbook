@@ -4,11 +4,14 @@ import Image from "next/image"
 import BrandLogo from "@/components/brand/BrandLogo"
 import { ArrowLeft, Trash2, ShieldAlert, CheckCircle2, FileText, Smartphone } from "lucide-react"
 import { DataDeletionFormClient } from "./DataDeletionFormClient"
+import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
 
-export const metadata = {
+export const metadata = adaptStaticPageSeo({
   title: "Account & Data Deletion Request | AspirantBook",
   description: "Request the permanent deletion of your AspirantBook account, personal data, and test records in compliance with Google Play and Apple App Store policies.",
-}
+  canonicalPath: "/data-deletion",
+  titleAbsolute: true,
+}).metadata
 
 export default function DataDeletionPage() {
   return (
