@@ -534,7 +534,10 @@ export async function deletePaper(id: string): Promise<{ id: string; archived: b
 
   const paper = await prisma.pyqPaper.findUnique({
     where: { id },
-    select: { _count: { select: { unlocks: true, leads: true } } },
+    select: {
+      cbtTestId: true,
+      _count: { select: { unlocks: true, leads: true } },
+    },
   })
   if (!paper) throw new Error("Paper not found")
 
@@ -547,8 +550,114 @@ export async function deletePaper(id: string): Promise<{ id: string; archived: b
     return { id, archived: true }
   }
 
+  // Safely clear cbtTestId before deleting to prevent orphan references
+  if (paper.cbtTestId) {
+    await prisma.pyqPaper.update({
+      where: { id },
+      data: { cbtTestId: null, hasCbtMode: false },
+    })
+  }
+
   await prisma.pyqPaper.delete({ where: { id } })
   return { id, archived: false }
+}
+
+export async function archivePaper(id: string, isArchived: boolean = true) {
+  await requireRole(["ADMIN", "TEACHER"])
+  return prisma.pyqPaper.update({
+    where: { id },
+    data: {
+      status: isArchived ? "ARCHIVED" : "PUBLISHED",
+    },
+  })
+}
+
+export async function bulkManagePapers({
+  paperIds,
+  action,
+  userId,
+  role,
+}: {
+  paperIds: string[]
+  action: "publish" | "unpublish" | "archive" | "restore" | "delete"
+  userId: string
+  role: string
+}) {
+  if (role !== "ADMIN" && role !== "TEACHER") {
+    throw new Error("Forbidden: Admin or Teacher required")
+  }
+
+  const where: any = { id: { in: paperIds } }
+  if (role === "TEACHER") {
+    where.creatorId = userId
+  }
+
+  const papers = await prisma.pyqPaper.findMany({
+    where,
+    select: {
+      id: true,
+      cbtTestId: true,
+      _count: { select: { leads: true, unlocks: true } },
+    },
+  })
+
+  const matchingIds = papers.map((p) => p.id)
+  if (matchingIds.length === 0) {
+    return { affected: 0 }
+  }
+
+  if (action === "publish" || action === "restore") {
+    const res = await prisma.pyqPaper.updateMany({
+      where: { id: { in: matchingIds } },
+      data: { status: "PUBLISHED" },
+    })
+    return { affected: res.count }
+  }
+
+  if (action === "unpublish") {
+    const res = await prisma.pyqPaper.updateMany({
+      where: { id: { in: matchingIds } },
+      data: { status: "DRAFT" },
+    })
+    return { affected: res.count }
+  }
+
+  if (action === "archive") {
+    const res = await prisma.pyqPaper.updateMany({
+      where: { id: { in: matchingIds } },
+      data: { status: "ARCHIVED" },
+    })
+    return { affected: res.count }
+  }
+
+  if (action === "delete") {
+    // Only delete papers that do not have leads or unlocks
+    const deletable = papers.filter(
+      (p) => p._count.leads === 0 && p._count.unlocks === 0
+    )
+    const deletableIds = deletable.map((p) => p.id)
+
+    if (deletableIds.length === 0) {
+      return { affected: 0, blocked: papers.length }
+    }
+
+    // Safely clear cbtTestId link for deletable papers
+    await prisma.pyqPaper.updateMany({
+      where: { id: { in: deletableIds }, cbtTestId: { not: null } },
+      data: { cbtTestId: null, hasCbtMode: false },
+    })
+
+    const res = await prisma.pyqPaper.deleteMany({
+      where: { id: { in: deletableIds } },
+    })
+
+    return {
+      affected: res.count,
+      blocked: papers.length - deletable.length,
+    }
+  }
+
+  return { affected: 0 }
 }
 
 // ─── LEADS & UNLOCK ANALYTICS ─────────────────────────────────────────────

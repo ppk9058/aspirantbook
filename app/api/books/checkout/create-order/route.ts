@@ -87,6 +87,13 @@ export async function POST(req: Request) {
         )
       }
 
+      if (book.status && book.status !== "published") {
+        return NextResponse.json(
+          { error: `eBook "${book.title}" is archived or unavailable for purchase.` },
+          { status: 400 }
+        )
+      }
+
       // Check if user already owns this book
       if (ownedBookIds.includes(book.id)) {
         return NextResponse.json(

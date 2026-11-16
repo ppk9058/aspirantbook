@@ -1,29 +1,34 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
 import {
   FileText,
-  Upload,
   Search,
-  Filter,
   CheckCircle2,
   Clock,
   Download,
-  Edit2,
-  Trash2,
   Eye,
   Plus,
   X,
   AlertCircle,
-  ExternalLink,
   Calendar,
   Globe,
   Loader2,
   Lock,
+  Archive,
 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
 import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
+import {
+  StudioStatusTabs,
+  useStudioSelection,
+  StudioBulkActionBar,
+  StudioRowMenu,
+  StudioDeleteImpactDialog,
+} from "@/components/admin/studio"
+import { toast } from "sonner"
 
 const MONTHS = [
   "January",
@@ -59,7 +64,7 @@ export interface CurrentAffairsPdfItem {
     email: string | null
   } | null
   createdAt: string | Date
-  updatedAt: string | Date
+  updatedAt?: string | Date
   isGated?: boolean
   previewPercentage?: number
   seoMode?: "preview" | "bot-full"
@@ -67,76 +72,136 @@ export interface CurrentAffairsPdfItem {
   gateSubtitle?: string | null
 }
 
-interface Props {
+interface CurrentAffairsStudioClientProps {
   initialItems: CurrentAffairsPdfItem[]
-  basePath?: string
-  userRole?: string
-  userId?: string
+  basePath: string
+  userRole: string
+  userId: string
 }
 
-function formatKb(kb?: number | null) {
-  if (!kb) return ""
-  if (kb < 1024) return `${kb} KB`
-  const mb = kb / 1024
-  return `${mb.toFixed(1)} MB`
-}
+type CurrentAffairsTab = "ALL" | "PUBLISHED" | "DRAFT" | "ARCHIVED"
 
 export function CurrentAffairsStudioClient({
   initialItems,
-  basePath = "/admin",
-  userRole = "ADMIN",
-  userId = "",
-}: Props) {
+  basePath: _basePath,
+  userRole,
+  userId: _userId,
+}: CurrentAffairsStudioClientProps) {
   const [items, setItems] = useState<CurrentAffairsPdfItem[]>(initialItems)
+  const [activeTab, setActiveTab] = useState<CurrentAffairsTab>("ALL")
   const [search, setSearch] = useState("")
   const [filterYear, setFilterYear] = useState<string>("ALL")
   const [filterMonth, setFilterMonth] = useState<string>("ALL")
-  const [filterStatus, setFilterStatus] = useState<string>("ALL")
 
-  // Modal states
+  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<CurrentAffairsPdfItem | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
-  // Form states
+  // Delete dialog state
+  const [itemToDelete, setItemToDelete] = useState<CurrentAffairsPdfItem | null>(null)
+
+  // Form Fields
   const [formTitle, setFormTitle] = useState("")
   const [formTitleHi, setFormTitleHi] = useState("")
   const [formMonth, setFormMonth] = useState<number>(new Date().getMonth() + 1)
   const [formYear, setFormYear] = useState<number>(new Date().getFullYear())
-  const [formStatus, setFormStatus] = useState<"DRAFT" | "PUBLISHED">("PUBLISHED")
-  const [formIsGated, setFormIsGated] = useState(false)
-  const [formPreviewPercentage, setFormPreviewPercentage] = useState(20)
-  const [formSeoMode, setFormSeoMode] = useState<"preview" | "bot-full">("preview")
-  const [formGateTitle, setFormGateTitle] = useState("")
-  const [formGateSubtitle, setFormGateSubtitle] = useState("")
-
-  // Uploading state for PDFs
+  const [formStatus, setFormStatus] = useState<"PUBLISHED" | "DRAFT">("PUBLISHED")
   const [enPdfUrl, setEnPdfUrl] = useState<string | null>(null)
   const [hiPdfUrl, setHiPdfUrl] = useState<string | null>(null)
   const [enFileSizeKb, setEnFileSizeKb] = useState<number | null>(null)
   const [hiFileSizeKb, setHiFileSizeKb] = useState<number | null>(null)
+
+  // Authwall Gate Form Fields
+  const [formIsGated, setFormIsGated] = useState<boolean>(false)
+  const [formPreviewPercentage, setFormPreviewPercentage] = useState<number>(20)
+  const [formSeoMode, setFormSeoMode] = useState<"preview" | "bot-full">("preview")
+  const [formGateTitle, setFormGateTitle] = useState<string>("")
+  const [formGateSubtitle, setFormGateSubtitle] = useState<string>("")
+
+  // Upload States
   const [isUploadingEn, setIsUploadingEn] = useState(false)
   const [isUploadingHi, setIsUploadingHi] = useState(false)
 
-  // Filter items
-  const filteredItems = items.filter((item) => {
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      const titleMatch = item.title.toLowerCase().includes(q)
-      const titleHiMatch = item.titleHi?.toLowerCase().includes(q)
-      const monthName = MONTHS[item.month - 1]?.toLowerCase()
-      if (!titleMatch && !titleHiMatch && !monthName?.includes(q)) return false
+  // Status counts calculation
+  const statusCounts = useMemo(() => {
+    const counts = {
+      ALL: items.length,
+      PUBLISHED: 0,
+      DRAFT: 0,
+      ARCHIVED: 0,
     }
-    if (filterYear !== "ALL" && item.year.toString() !== filterYear) return false
-    if (filterMonth !== "ALL" && item.month.toString() !== filterMonth) return false
-    if (filterStatus !== "ALL" && item.status !== filterStatus) return false
-    return true
+    for (const item of items) {
+      const s = (item.status || "DRAFT").toUpperCase()
+      if (s === "PUBLISHED") counts.PUBLISHED++
+      else if (s === "ARCHIVED") counts.ARCHIVED++
+      else counts.DRAFT++
+    }
+    return counts
+  }, [items])
+
+  const tabs = useMemo(
+    () => [
+      { id: "ALL" as const, label: "All Documents", count: statusCounts.ALL },
+      { id: "PUBLISHED" as const, label: "Published", count: statusCounts.PUBLISHED },
+      { id: "DRAFT" as const, label: "Drafts", count: statusCounts.DRAFT },
+      { id: "ARCHIVED" as const, label: "Archived", count: statusCounts.ARCHIVED },
+    ],
+    [statusCounts]
+  )
+
+  // Filter items
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const s = (item.status || "DRAFT").toUpperCase()
+      if (activeTab === "PUBLISHED" && s !== "PUBLISHED") return false
+      if (activeTab === "DRAFT" && s !== "DRAFT") return false
+      if (activeTab === "ARCHIVED" && s !== "ARCHIVED") return false
+
+      if (search.trim()) {
+        const q = search.toLowerCase()
+        const titleMatch = item.title.toLowerCase().includes(q)
+        const titleHiMatch = item.titleHi?.toLowerCase().includes(q)
+        const monthName = MONTHS[item.month - 1]?.toLowerCase()
+        if (!titleMatch && !titleHiMatch && !monthName?.includes(q)) return false
+      }
+      if (filterYear !== "ALL" && item.year.toString() !== filterYear) return false
+      if (filterMonth !== "ALL" && item.month.toString() !== filterMonth) return false
+      return true
+    })
+  }, [items, activeTab, search, filterYear, filterMonth])
+
+  // Unique years for filter dropdown
+  const years = useMemo(
+    () => Array.from(new Set(items.map((i) => i.year))).sort((a, b) => b - a),
+    [items]
+  )
+
+  // Bulk selection hook
+  const {
+    selectedIds,
+    selectedCount,
+    allSelected,
+    isSelected,
+    toggleSelect,
+    toggleSelectAll,
+    clearSelection,
+  } = useStudioSelection({
+    items: filteredItems,
+    getItemId: (item) => item.id,
   })
 
-  // Extract unique years for filter
-  const years = Array.from(new Set(items.map((i) => i.year))).sort((a, b) => b - a)
+  // Format File Size
+  const formatKb = (kb?: number | null) => {
+    if (!kb) return null
+    if (kb >= 1024) {
+      return `${(kb / 1024).toFixed(1)} MB`
+    }
+    return `${Math.round(kb)} KB`
+  }
 
+  // Open Modal Helpers
   const openCreateModal = () => {
     setEditingItem(null)
     setFormTitle("")
@@ -144,15 +209,15 @@ export function CurrentAffairsStudioClient({
     setFormMonth(new Date().getMonth() + 1)
     setFormYear(new Date().getFullYear())
     setFormStatus("PUBLISHED")
+    setEnPdfUrl(null)
+    setHiPdfUrl(null)
+    setEnFileSizeKb(null)
+    setHiFileSizeKb(null)
     setFormIsGated(false)
     setFormPreviewPercentage(20)
     setFormSeoMode("preview")
     setFormGateTitle("")
     setFormGateSubtitle("")
-    setEnPdfUrl(null)
-    setHiPdfUrl(null)
-    setEnFileSizeKb(null)
-    setHiFileSizeKb(null)
     setFormError(null)
     setIsModalOpen(true)
   }
@@ -177,13 +242,16 @@ export function CurrentAffairsStudioClient({
     setIsModalOpen(true)
   }
 
+  // Handle PDF Upload
   const handleUploadFile = async (file: File, lang: "en" | "hi") => {
-    try {
-      if (lang === "en") setIsUploadingEn(true)
-      else setIsUploadingHi(true)
+    if (lang === "en") setIsUploadingEn(true)
+    if (lang === "hi") setIsUploadingHi(true)
+    setFormError(null)
 
+    try {
       const formData = new FormData()
       formData.append("file", file)
+      formData.append("folder", "current-affairs")
 
       const res = await fetch("/api/admin/current-affairs/upload", {
         method: "POST",
@@ -191,38 +259,30 @@ export function CurrentAffairsStudioClient({
       })
 
       const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to upload PDF file")
-      }
-
-      const kb = Math.round((data.fileSize || 0) / 1024)
+      if (!res.ok) throw new Error(data.error || "File upload failed")
 
       if (lang === "en") {
-        setEnPdfUrl(data.filePath)
-        setEnFileSizeKb(kb)
+        setEnPdfUrl(data.url)
+        setEnFileSizeKb(data.fileSizeKb)
       } else {
-        setHiPdfUrl(data.filePath)
-        setHiFileSizeKb(kb)
+        setHiPdfUrl(data.url)
+        setHiFileSizeKb(data.fileSizeKb)
       }
     } catch (err: any) {
-      setFormError(err.message || "Upload error")
+      setFormError(err.message || "Failed to upload PDF file")
     } finally {
       if (lang === "en") setIsUploadingEn(false)
-      else setIsUploadingHi(false)
+      if (lang === "hi") setIsUploadingHi(false)
     }
   }
 
+  // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
 
-    if (!formTitle.trim()) {
-      setFormError("Title is required")
-      return
-    }
-
     if (!enPdfUrl && !hiPdfUrl) {
-      setFormError("At least one PDF (English or Hindi) is required")
+      setFormError("Please upload at least one PDF (English or Hindi edition).")
       return
     }
 
@@ -230,7 +290,6 @@ export function CurrentAffairsStudioClient({
 
     try {
       if (editingItem) {
-        // PUT update
         const res = await fetch(`/api/admin/current-affairs/${editingItem.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -256,9 +315,9 @@ export function CurrentAffairsStudioClient({
         if (!res.ok) throw new Error(data.error || "Failed to update Current Affairs")
 
         setItems((prev) => prev.map((item) => (item.id === editingItem.id ? data.data : item)))
+        toast.success("Document updated successfully")
         setIsModalOpen(false)
       } else {
-        // POST create
         const res = await fetch("/api/admin/current-affairs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -284,6 +343,7 @@ export function CurrentAffairsStudioClient({
         if (!res.ok) throw new Error(data.error || "Failed to create Current Affairs")
 
         setItems((prev) => [data.data, ...prev])
+        toast.success("Document uploaded successfully")
         setIsModalOpen(false)
       }
     } catch (err: any) {
@@ -305,24 +365,71 @@ export function CurrentAffairsStudioClient({
       if (!res.ok) throw new Error(data.error || "Failed to toggle status")
 
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, status: nextStatus } : i)))
+      toast.success(`Document status set to ${nextStatus}`)
     } catch (err: any) {
-      alert(err.message || "Failed to change status")
+      toast.error(err.message || "Failed to change status")
     }
   }
 
-  const handleArchive = async (item: CurrentAffairsPdfItem) => {
-    if (!confirm(`Are you sure you want to archive "${item.title}"?`)) return
+  const handleToggleArchive = async (item: CurrentAffairsPdfItem) => {
+    const isCurrentlyArchived = item.status === "ARCHIVED"
+    const nextStatus = isCurrentlyArchived ? "PUBLISHED" : "ARCHIVED"
     try {
-      const res = await fetch(`/api/admin/current-affairs/${item.id}`, {
-        method: "DELETE",
+      const res = await fetch(`/api/admin/current-affairs/${item.id}/archive`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isArchived: !isCurrentlyArchived }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Failed to archive document")
+      if (!res.ok) throw new Error(data.error || "Failed to update archive status")
 
-      setItems((prev) => prev.filter((i) => i.id !== item.id))
+      setItems((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, status: nextStatus } : i))
+      )
+      toast.success(
+        isCurrentlyArchived
+          ? `Restored "${item.title}" successfully`
+          : `Archived "${item.title}" successfully`
+      )
     } catch (err: any) {
-      alert(err.message || "Failed to archive")
+      toast.error(err.message || "Failed to toggle archive state")
     }
+  }
+
+  // Bulk actions
+  const handleBulkAction = async (action: "publish" | "unpublish" | "archive" | "restore") => {
+    if (selectedIds.length === 0) return
+    try {
+      const res = await fetch("/api/admin/current-affairs/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds, action }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `Bulk ${action} failed`)
+
+      const nextStatus =
+        action === "publish" || action === "restore"
+          ? "PUBLISHED"
+          : action === "unpublish"
+          ? "DRAFT"
+          : "ARCHIVED"
+
+      setItems((prev) =>
+        prev.map((i) => (selectedIds.includes(i.id) ? { ...i, status: nextStatus } : i))
+      )
+      toast.success(`Updated status for ${data.affected} document(s)`)
+      clearSelection()
+    } catch (err: any) {
+      toast.error(err.message || "Bulk action failed")
+    }
+  }
+
+  // Delete impact dialog confirmation (archive is the safe option)
+  const handleConfirmArchive = async () => {
+    if (!itemToDelete) return
+    await handleToggleArchive(itemToDelete)
+    setItemToDelete(null)
   }
 
   const totalDownloads = items.reduce((acc, curr) => acc + (curr.downloadCount || 0), 0)
@@ -341,14 +448,14 @@ export function CurrentAffairsStudioClient({
         <div className="flex items-center gap-2">
           <Link
             href="/current-affairs-quizzes"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted/60 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted/60 transition-colors min-h-[40px]"
           >
             <Eye className="w-4 h-4 text-muted-foreground" />
             Student View
           </Link>
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm min-h-[40px] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Upload Monthly PDF
@@ -360,17 +467,15 @@ export function CurrentAffairsStudioClient({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl border border-border bg-card">
           <span className="text-xs font-medium text-muted-foreground">Total Monthly PDFs</span>
-          <p className="text-2xl font-bold text-foreground mt-1">{items.length}</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{statusCounts.ALL}</p>
         </div>
         <div className="p-4 rounded-xl border border-border bg-card">
           <span className="text-xs font-medium text-muted-foreground">Published</span>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{publishedCount}</p>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{statusCounts.PUBLISHED}</p>
         </div>
         <div className="p-4 rounded-xl border border-border bg-card">
           <span className="text-xs font-medium text-muted-foreground">Drafts</span>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
-            {items.length - publishedCount}
-          </p>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{statusCounts.DRAFT}</p>
         </div>
         <div className="p-4 rounded-xl border border-border bg-card">
           <span className="text-xs font-medium text-muted-foreground">Total Downloads</span>
@@ -378,59 +483,74 @@ export function CurrentAffairsStudioClient({
         </div>
       </div>
 
-      {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-3 items-center justify-between bg-card p-4 rounded-xl border border-border">
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search by title, month..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
+      {/* Filter Tabs, Search & Bulk Actions Bar */}
+      <div className="bg-card p-4 rounded-xl border border-border space-y-3">
+        {/* Status Tabs with counts */}
+        <StudioStatusTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(tabId) => setActiveTab(tabId as CurrentAffairsTab)}
+        />
+
+        {/* Filters & Search row */}
+        <div className="flex flex-col md:flex-row gap-3 items-center justify-between pt-1">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search by title, month..."
+              aria-label="Search current affairs"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[40px]"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            {/* Year Filter */}
+            <select
+              value={filterYear}
+              onChange={(e) => setFilterYear(e.target.value)}
+              aria-label="Filter by Year"
+              className="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none min-h-[40px]"
+            >
+              <option value="ALL">All Years</option>
+              {years.map((y) => (
+                <option key={y} value={y.toString()}>
+                  {y}
+                </option>
+              ))}
+            </select>
+
+            {/* Month Filter */}
+            <select
+              value={filterMonth}
+              onChange={(e) => setFilterMonth(e.target.value)}
+              aria-label="Filter by Month"
+              className="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none min-h-[40px]"
+            >
+              <option value="ALL">All Months</option>
+              {MONTHS.map((m, idx) => (
+                <option key={m} value={(idx + 1).toString()}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Year Filter */}
-          <select
-            value={filterYear}
-            onChange={(e) => setFilterYear(e.target.value)}
-            className="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none"
-          >
-            <option value="ALL">All Years</option>
-            {years.map((y) => (
-              <option key={y} value={y.toString()}>
-                {y}
-              </option>
-            ))}
-          </select>
-
-          {/* Month Filter */}
-          <select
-            value={filterMonth}
-            onChange={(e) => setFilterMonth(e.target.value)}
-            className="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none"
-          >
-            <option value="ALL">All Months</option>
-            {MONTHS.map((m, idx) => (
-              <option key={m} value={(idx + 1).toString()}>
-                {m}
-              </option>
-            ))}
-          </select>
-
-          {/* Status Filter */}
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none"
-          >
-            <option value="ALL">All Status</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="DRAFT">Draft</option>
-          </select>
-        </div>
+        {/* Bulk Action Bar */}
+        <StudioBulkActionBar
+          totalItems={filteredItems.length}
+          selectedCount={selectedCount}
+          allSelected={allSelected}
+          onToggleSelectAll={toggleSelectAll}
+          itemLabel="document"
+          onBulkPublish={() => handleBulkAction("publish")}
+          onBulkUnpublish={() => handleBulkAction("unpublish")}
+          onBulkArchive={() => handleBulkAction("archive")}
+          onBulkRestore={() => handleBulkAction("restore")}
+        />
       </div>
 
       {/* Table / List */}
@@ -444,7 +564,7 @@ export function CurrentAffairsStudioClient({
             </p>
             <button
               onClick={openCreateModal}
-              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 min-h-[40px]"
             >
               <Plus className="w-4 h-4" />
               Upload First PDF
@@ -455,6 +575,14 @@ export function CurrentAffairsStudioClient({
             <table className="w-full text-left text-sm">
               <thead className="bg-muted/50 border-b border-border text-xs uppercase text-muted-foreground font-semibold">
                 <tr>
+                  <th className="py-3 px-3 w-10 text-center">
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={(checked) => toggleSelectAll(Boolean(checked))}
+                      aria-label="Select all documents"
+                      data-testid="select-all-ca-table"
+                    />
+                  </th>
                   <th className="py-3 px-4">Period</th>
                   <th className="py-3 px-4">Title</th>
                   <th className="py-3 px-4">Language Formats</th>
@@ -465,133 +593,200 @@ export function CurrentAffairsStudioClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filteredItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-primary shrink-0" />
-                        <span className="font-semibold text-foreground">
-                          {MONTHS[item.month - 1]} {item.year}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="max-w-md">
-                        <p className="font-medium text-foreground">{item.title}</p>
-                        {item.titleHi && (
-                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                            {item.titleHi}
-                          </p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2">
-                        {item.pdfUrlEn ? (
-                          <Link
-                            href={buildPdfReaderHref({
-                              src: `/api/current-affairs/file/${item.id}?lang=en`,
-                              downloadUrl: `/api/current-affairs/file/${item.id}?lang=en&download=1`,
-                              title: item.title,
-                              subtitle: `Current Affairs • English (${MONTHS[item.month - 1]} ${item.year})`,
-                              badge: "Current Affairs (EN)",
-                            })}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 hover:underline"
-                          >
-                            <span>EN</span>
-                            {item.fileSizeKbEn && (
-                              <span className="text-[10px] opacity-75">({formatKb(item.fileSizeKbEn)})</span>
-                            )}
-                          </Link>
-                        ) : null}
-                        {item.pdfUrlHi ? (
-                          <Link
-                            href={buildPdfReaderHref({
-                              src: `/api/current-affairs/file/${item.id}?lang=hi`,
-                              downloadUrl: `/api/current-affairs/file/${item.id}?lang=hi&download=1`,
-                              title: item.titleHi || item.title,
-                              subtitle: `Current Affairs • Hindi (${MONTHS[item.month - 1]} ${item.year})`,
-                              badge: "Current Affairs (HI)",
-                            })}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 hover:underline"
-                          >
-                            <span>HI</span>
-                            {item.fileSizeKbHi && (
-                              <span className="text-[10px] opacity-75">({formatKb(item.fileSizeKbHi)})</span>
-                            )}
-                          </Link>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                        <Download className="w-3.5 h-3.5" />
-                        <span>{item.downloadCount}</span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleToggleStatus(item)}
-                        title="Click to toggle publish status"
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
-                          item.status === "PUBLISHED"
-                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200"
-                            : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200"
-                        }`}
-                      >
-                        {item.status === "PUBLISHED" ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3" />
-                            Published
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-3 h-3" />
-                            Draft
-                          </>
-                        )}
-                      </button>
-                      {item.isGated && (
-                        <div className="flex items-center gap-1 text-[11px] text-purple-700 dark:text-purple-300 font-semibold mt-1">
-                          <Lock className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                          Gated ({item.previewPercentage ?? 20}%)
-                        </div>
-                      )}
-                    </td>
-                    {userRole === "ADMIN" && (
-                      <td className="py-3.5 px-4 whitespace-nowrap text-xs text-muted-foreground">
-                        {item.createdBy?.name || item.createdBy?.email || "Admin"}
+                {filteredItems.map((item) => {
+                  const isSelectedRow = isSelected(item.id)
+                  const primaryPdf = item.pdfUrlEn || item.pdfUrlHi
+                  const primaryViewUrl = item.pdfUrlEn
+                    ? buildPdfReaderHref({
+                        src: `/api/current-affairs/file/${item.id}?lang=en`,
+                        downloadUrl: `/api/current-affairs/file/${item.id}?lang=en&download=1`,
+                        title: item.title,
+                        subtitle: `Current Affairs • English (${MONTHS[item.month - 1]} ${item.year})`,
+                        badge: "Current Affairs (EN)",
+                      })
+                    : item.pdfUrlHi
+                    ? buildPdfReaderHref({
+                        src: `/api/current-affairs/file/${item.id}?lang=hi`,
+                        downloadUrl: `/api/current-affairs/file/${item.id}?lang=hi&download=1`,
+                        title: item.titleHi || item.title,
+                        subtitle: `Current Affairs • Hindi (${MONTHS[item.month - 1]} ${item.year})`,
+                        badge: "Current Affairs (HI)",
+                      })
+                    : undefined
+
+                  return (
+                    <tr
+                      key={item.id}
+                      className={`hover:bg-muted/30 transition-colors ${
+                        isSelectedRow ? "bg-primary/5" : ""
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <td className="py-3.5 px-3 text-center">
+                        <Checkbox
+                          checked={isSelectedRow}
+                          onCheckedChange={() => toggleSelect(item.id)}
+                          aria-label={`Select ${item.title}`}
+                          data-testid={`select-ca-${item.id}`}
+                        />
                       </td>
-                    )}
-                    <td className="py-3.5 px-4 whitespace-nowrap text-right">
-                      <div className="inline-flex items-center gap-1">
+
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-primary shrink-0" />
+                          <span className="font-semibold text-foreground">
+                            {MONTHS[item.month - 1]} {item.year}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="max-w-md">
+                          <p className="font-medium text-foreground">{item.title}</p>
+                          {item.titleHi && (
+                            <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                              {item.titleHi}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-2">
+                          {item.pdfUrlEn ? (
+                            <Link
+                              href={buildPdfReaderHref({
+                                src: `/api/current-affairs/file/${item.id}?lang=en`,
+                                downloadUrl: `/api/current-affairs/file/${item.id}?lang=en&download=1`,
+                                title: item.title,
+                                subtitle: `Current Affairs • English (${MONTHS[item.month - 1]} ${item.year})`,
+                                badge: "Current Affairs (EN)",
+                              })}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 hover:underline"
+                            >
+                              <span>EN</span>
+                              {item.fileSizeKbEn && (
+                                <span className="text-[10px] opacity-75">({formatKb(item.fileSizeKbEn)})</span>
+                              )}
+                            </Link>
+                          ) : null}
+                          {item.pdfUrlHi ? (
+                            <Link
+                              href={buildPdfReaderHref({
+                                src: `/api/current-affairs/file/${item.id}?lang=hi`,
+                                downloadUrl: `/api/current-affairs/file/${item.id}?lang=hi&download=1`,
+                                title: item.titleHi || item.title,
+                                subtitle: `Current Affairs • Hindi (${MONTHS[item.month - 1]} ${item.year})`,
+                                badge: "Current Affairs (HI)",
+                              })}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 hover:underline"
+                            >
+                              <span>HI</span>
+                              {item.fileSizeKbHi && (
+                                <span className="text-[10px] opacity-75">({formatKb(item.fileSizeKbHi)})</span>
+                              )}
+                            </Link>
+                          ) : null}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{item.downloadCount}</span>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <button
-                          onClick={() => openEditModal(item)}
-                          className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-                          title="Edit"
+                          onClick={() => handleToggleStatus(item)}
+                          title="Click to toggle publish status"
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
+                            item.status === "PUBLISHED"
+                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200"
+                              : item.status === "ARCHIVED"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200"
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200"
+                          }`}
                         >
-                          <Edit2 className="w-4 h-4" />
+                          {item.status === "PUBLISHED" ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3" />
+                              Published
+                            </>
+                          ) : item.status === "ARCHIVED" ? (
+                            <>
+                              <Archive className="w-3 h-3" />
+                              Archived
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3" />
+                              Draft
+                            </>
+                          )}
                         </button>
-                        <button
-                          onClick={() => handleArchive(item)}
-                          className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                          title="Archive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                        {item.isGated && (
+                          <div className="flex items-center gap-1 text-[11px] text-purple-700 dark:text-purple-300 font-semibold mt-1">
+                            <Lock className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                            Gated ({item.previewPercentage ?? 20}%)
+                          </div>
+                        )}
+                      </td>
+
+                      {userRole === "ADMIN" && (
+                        <td className="py-3.5 px-4 whitespace-nowrap text-xs text-muted-foreground">
+                          {item.createdBy?.name || item.createdBy?.email || "Admin"}
+                        </td>
+                      )}
+
+                      <td className="py-3.5 px-4 whitespace-nowrap text-right">
+                        <div className="inline-flex items-center justify-end gap-1">
+                          <StudioRowMenu
+                            itemId={item.id}
+                            itemTitle={item.title}
+                            isArchived={item.status === "ARCHIVED"}
+                            onEdit={() => openEditModal(item)}
+                            viewHref={primaryViewUrl}
+                            onToggleArchive={() => handleToggleArchive(item)}
+                            onDelete={() => setItemToDelete(item)}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
+      {/* Delete Impact Dialog (Archive is the safe option) */}
+      {itemToDelete && (
+        <StudioDeleteImpactDialog
+          isOpen={Boolean(itemToDelete)}
+          onClose={() => setItemToDelete(null)}
+          itemType="Current Affairs Document"
+          itemName={itemToDelete.title}
+          itemId={itemToDelete.id}
+          impactMetrics={[
+            {
+              label: "Student Downloads",
+              count: itemToDelete.downloadCount || 0,
+              icon: <Download className="w-3.5 h-3.5 text-blue-500" />,
+            },
+          ]}
+          hasDependencies={true}
+          dependencyNotice="Archiving is the safe option to prevent broken download links and preserve learner study history. The document will be immediately hidden from student portals while retaining administrative access."
+          isArchivedAlready={itemToDelete.status === "ARCHIVED"}
+          onConfirmArchive={handleConfirmArchive}
+        />
+      )}
 
       {/* Create / Edit Modal */}
       {isModalOpen && (
@@ -604,7 +799,7 @@ export function CurrentAffairsStudioClient({
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 text-muted-foreground hover:text-foreground rounded-md"
+                className="p-1 text-muted-foreground hover:text-foreground rounded-md min-h-[36px] min-w-[36px] flex items-center justify-center"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -630,7 +825,7 @@ export function CurrentAffairsStudioClient({
                   placeholder="e.g. Monthly Current Affairs Digest - January 2026"
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[40px]"
                 />
               </div>
 
@@ -644,7 +839,7 @@ export function CurrentAffairsStudioClient({
                   placeholder="उदा. मासिक समसामयिकी सार - जनवरी 2026"
                   value={formTitleHi}
                   onChange={(e) => setFormTitleHi(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[40px]"
                 />
               </div>
 
@@ -657,7 +852,7 @@ export function CurrentAffairsStudioClient({
                   <select
                     value={formMonth}
                     onChange={(e) => setFormMonth(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[40px]"
                   >
                     {MONTHS.map((m, idx) => (
                       <option key={m} value={idx + 1}>
@@ -677,7 +872,7 @@ export function CurrentAffairsStudioClient({
                     max={2100}
                     value={formYear}
                     onChange={(e) => setFormYear(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[40px]"
                   />
                 </div>
               </div>
@@ -712,7 +907,7 @@ export function CurrentAffairsStudioClient({
                           handleUploadFile(file, "en")
                         }
                       }}
-                      className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
+                      className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer min-h-[36px]"
                     />
                     {isUploadingEn && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
                   </div>
@@ -742,7 +937,7 @@ export function CurrentAffairsStudioClient({
                           handleUploadFile(file, "hi")
                         }
                       }}
-                      className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
+                      className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer min-h-[36px]"
                     />
                     {isUploadingHi && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
                   </div>
@@ -759,12 +954,12 @@ export function CurrentAffairsStudioClient({
                     gateTitle: formGateTitle,
                     gateSubtitle: formGateSubtitle,
                   }}
-                  onChange={(patch) => {
-                    if (patch.isGated !== undefined) setFormIsGated(patch.isGated)
-                    if (patch.previewPercentage !== undefined) setFormPreviewPercentage(patch.previewPercentage)
-                    if (patch.seoMode !== undefined) setFormSeoMode(patch.seoMode)
-                    if (patch.gateTitle !== undefined) setFormGateTitle(patch.gateTitle)
-                    if (patch.gateSubtitle !== undefined) setFormGateSubtitle(patch.gateSubtitle)
+                  onChange={(gateData) => {
+                    if (gateData.isGated !== undefined) setFormIsGated(gateData.isGated)
+                    if (gateData.previewPercentage !== undefined) setFormPreviewPercentage(gateData.previewPercentage)
+                    if (gateData.seoMode !== undefined) setFormSeoMode(gateData.seoMode)
+                    if (gateData.gateTitle !== undefined) setFormGateTitle(gateData.gateTitle || "")
+                    if (gateData.gateSubtitle !== undefined) setFormGateSubtitle(gateData.gateSubtitle || "")
                   }}
                   moduleName="Current Affairs"
                 />
@@ -778,7 +973,7 @@ export function CurrentAffairsStudioClient({
                 <select
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as any)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[40px]"
                 >
                   <option value="PUBLISHED">Published (Visible to students immediately)</option>
                   <option value="DRAFT">Draft (Hidden from students)</option>
@@ -790,14 +985,14 @@ export function CurrentAffairsStudioClient({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
+                  className="px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors min-h-[40px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || isUploadingEn || isUploadingHi}
-                  className="px-5 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5"
+                  className="px-5 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5 min-h-[40px]"
                 >
                   {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editingItem ? "Save Changes" : "Create & Upload"}
@@ -810,3 +1005,5 @@ export function CurrentAffairsStudioClient({
     </div>
   )
 }
+
+export default CurrentAffairsStudioClient

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getPaperById, updatePaper, deletePaper } from "@/lib/pyqs-service"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
+import { writeDualAuditLog } from "@/lib/exam/audit-helper"
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -39,7 +41,18 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const body = await req.json()
     const updated = await updatePaper({ id, ...body })
+    await writeDualAuditLog({
+      actorId: user.userId || "unknown",
+      action: "UPDATE",
+      targetId: id,
+      entityType: "PYQ_PAPER",
+      details: { title: existing.title, changes: body },
+    })
+
+    revalidatePath("/admin/pyqs")
+    revalidatePath("/pyqs")
     safeRevalidateTags(CACHE_TAGS.pyqs)
+
     return NextResponse.json(updated)
   } catch (error: any) {
     console.error("PUT /api/admin/pyqs/papers/[id] error:", error)
@@ -69,6 +82,18 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     const result = await deletePaper(id)
     safeRevalidateTags(CACHE_TAGS.pyqs)
+
+    await writeDualAuditLog({
+      actorId: user.userId || "unknown",
+      action: "DELETE",
+      targetId: id,
+      entityType: "PYQ_PAPER",
+      details: { title: existing.title, archived: result.archived },
+    })
+
+    revalidatePath("/admin/pyqs")
+    revalidatePath("/pyqs")
+
     return NextResponse.json({
       success: true,
       archived: result.archived,
@@ -77,6 +102,13 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
         : "Paper deleted successfully",
     })
   } catch (error: any) {
+    if (error.status === 409 || error.code === "DEPENDENCIES_EXIST") {
+      return NextResponse.json({
+        error: error.message,
+        leadsCount: error.leadsCount,
+        unlocksCount: error.unlocksCount,
+      }, { status: 409 })
+    }
     console.error("DELETE /api/admin/pyqs/papers/[id] error:", error)
     return NextResponse.json({ error: error.message || "Failed to delete paper" }, { status: 500 })
   }
