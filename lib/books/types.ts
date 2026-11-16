@@ -5,7 +5,7 @@ export interface BookThumbnail {
   type: "cover" | "back" | "contents" | "sample"
 }
 
-export type BookStatus = "draft" | "pending" | "published" | "rejected"
+export type BookStatus = "draft" | "pending" | "published" | "rejected" | "archived"
 
 export interface BookProductDetail {
   label: string

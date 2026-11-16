@@ -34,7 +34,7 @@ export async function PATCH(
     }
     const { status, rejectionReason } = body
 
-    if (!["draft", "pending", "published", "rejected"].includes(status)) {
+    if (!["draft", "pending", "published", "rejected", "archived"].includes(status)) {
       return NextResponse.json({ error: "Invalid status value" }, { status: 400 })
     }
 

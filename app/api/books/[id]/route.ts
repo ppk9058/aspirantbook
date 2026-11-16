@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { getBookById, updateBook, deleteBook } from "@/lib/books/bookService"
 import {
@@ -8,6 +9,7 @@ import {
   validateSamplePdfRef,
 } from "@/lib/books/book-validation"
 import { normalizeBookStorageKey } from "@/lib/books/book-file-storage"
+import { writeDualAuditLog } from "@/lib/exam/audit-helper"
 
 export const dynamic = "force-dynamic"
 
@@ -178,8 +180,30 @@ export async function DELETE(
       return NextResponse.json({ error: "Book not found or could not be deleted" }, { status: 404 })
     }
 
+    await writeDualAuditLog({
+      actorId: user.userId || "unknown",
+      action: "DELETE",
+      targetId: id,
+      entityType: "ARTICLE",
+      details: { title: existing.title },
+    })
+
+    revalidatePath("/admin/books")
+    revalidatePath("/admin/book-studio")
+    revalidatePath("/books")
+
     return NextResponse.json({ success: true, message: "Book deleted successfully" })
   } catch (error: any) {
+    if (error.status === 409 || error.code === "ORDERS_EXIST") {
+      return NextResponse.json(
+        {
+          error: "Cannot delete book referenced by existing orders",
+          orderCount: error.orderCount,
+          message: error.message,
+        },
+        { status: 409 }
+      )
+    }
     console.error("DELETE /api/books/[id] error:", error)
     return NextResponse.json({ error: error.message || "Failed to delete book" }, { status: 500 })
   }

@@ -1497,6 +1497,9 @@ model ContentEngineQuestion {
   answer       String
   answerIndex  Int                            @default(-1)
   explanation  String?                        @db.Text
+  solution     Json? // structured solution: keyPoints, additionalInfo, optionAnalysis, memoryTip, concepts, check, checkNote, unsure, hints
+  solutionSource String? // SOURCE | PASTED | MANUAL
+  solutionVersion Int                          @default(1)
   sub          String?
   top          String?
   exam         String?
@@ -1504,7 +1507,7 @@ model ContentEngineQuestion {
   sourceTag    String?
   sourceNo     Int?
   batchId      String?
-  status       String                         @default("DRAFT") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
+  status       String                         @default("DRAFT") // DRAFT, NEEDS_REVIEW, IN_REVIEW, PUBLISHED, ARCHIVED
   isPublished  Boolean                        @default(false)
   isInferred   Boolean                        @default(false)
   isVerified   Boolean                        @default(false)
@@ -1532,6 +1535,7 @@ model ContentEngineTranslation {
   options      Json
   answer       String?
   explanation  String?               @db.Text
+  solution     Json? // structured solution for the translation (Format v1, lang hi)
   top          String?
   isReviewed   Boolean               @default(false)
   reviewedById String?

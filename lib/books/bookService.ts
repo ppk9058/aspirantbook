@@ -1,4 +1,4 @@
-import { Book, Coupon, BookOrder, BookOrderStatus } from "./types"
+import { Book, Coupon, BookOrder, BookOrderStatus, BookStatus } from "./types"
 import { BOOKS_DATA, AVAILABLE_COUPONS } from "./data"
 import { prisma } from "@/lib/prisma"
 
@@ -537,8 +537,109 @@ export async function updateBook(id: string, updates: Partial<Book>): Promise<Bo
 }
 
 export async function deleteBook(id: string): Promise<boolean> {
+  const existing = await getBookById(id)
+  if (!existing) return false
+
+  // Refuse hard delete when any BookOrder references the book
+  const orders = await getAllOrders()
+  const orderCount = orders.filter((o) =>
+    o.items?.some((item) => item.bookId === id || item.book?.id === id)
+  ).length
+
+  if (orderCount > 0) {
+    const error: any = new Error(
+      `Hard delete is blocked because ${orderCount} order(s) reference this book. Archive instead.`
+    )
+    error.code = "ORDERS_EXIST"
+    error.status = 409
+    error.orderCount = orderCount
+    throw error
+  }
+
   const result = await prisma.book.deleteMany({ where: { id } })
   return result.count > 0
+}
+
+export async function archiveBook(id: string, isArchived: boolean = true): Promise<Book | null> {
+  return updateBook(id, {
+    status: isArchived ? "archived" : "published",
+  })
+}
+
+export async function bulkManageBooks({
+  bookIds,
+  action,
+  userId,
+  role,
+}: {
+  bookIds: string[]
+  action: "publish" | "unpublish" | "archive" | "restore" | "delete" | "reject"
+  userId: string
+  role: string
+}): Promise<{ affected: number; blocked?: number }> {
+  if (role !== "ADMIN" && role !== "TEACHER") {
+    throw new Error("Forbidden: Admin or Teacher required")
+  }
+
+  if ((action === "publish" || action === "reject") && role !== "ADMIN") {
+    throw new Error("Access Denied: Only Admins can approve or reject books")
+  }
+
+  const books = await getAllBooks()
+  const orders = await getAllOrders()
+
+  const allowedBooks = books.filter(
+    (b) => bookIds.includes(b.id) && (role === "ADMIN" || b.createdBy?.id === userId)
+  )
+  const allowedIds = new Set(allowedBooks.map((b) => b.id))
+
+  if (allowedIds.size === 0) {
+    return { affected: 0 }
+  }
+
+  if (action === "delete") {
+    let affected = 0
+    let blocked = 0
+    const toDeleteIds: string[] = []
+
+    for (const book of allowedBooks) {
+      const orderCount = orders.filter((o) =>
+        o.items?.some((item) => item.bookId === book.id || item.book?.id === book.id)
+      ).length
+
+      if (orderCount > 0) {
+        blocked++
+      } else {
+        affected++
+        toDeleteIds.push(book.id)
+      }
+    }
+
+    if (toDeleteIds.length > 0) {
+      await prisma.book.deleteMany({
+        where: { id: { in: toDeleteIds } },
+      })
+    }
+
+    return { affected, blocked }
+  }
+
+  let nextStatus: BookStatus
+  if (action === "publish" || action === "restore") nextStatus = "published"
+  else if (action === "unpublish") nextStatus = "draft"
+  else if (action === "archive") nextStatus = "archived"
+  else if (action === "reject") nextStatus = "rejected"
+  else nextStatus = "draft"
+
+  let affected = 0
+  for (const book of allowedBooks) {
+    affected++
+    await updateBook(book.id, {
+      status: nextStatus,
+    })
+  }
+
+  return { affected }
 }
 
 // ----------------- ORDERS -----------------
