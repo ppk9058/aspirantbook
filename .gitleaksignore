@@ -1,3 +1,52 @@
 # Gitleaks ignore list
-# Policy: only fingerprints of findings reachable from HEAD whose secret is 12 chars or less and located in tests/, scripts/, tools/loadtest/, docs/.
-# Audit at HEAD found 0 findings with secret length <= 12 characters.
+
+# Test fixtures (unit tests, integration test scripts, load harnesses, mock data)
+6a90c28d66ac10051ebbf4f4c3f27ea16dd4524c:tests/unit/sentry-config.test.ts:generic-api-key:98
+a59f135efeec8b5399e252e624fdc6d25cf51743:tests/unit/health-secret-leak.test.ts:generic-api-key:23
+a59f135efeec8b5399e252e624fdc6d25cf51743:tests/unit/health-secret-leak.test.ts:generic-api-key:28
+a59f135efeec8b5399e252e624fdc6d25cf51743:tests/unit/health-secret-leak.test.ts:generic-api-key:33
+a59f135efeec8b5399e252e624fdc6d25cf51743:tests/unit/health-secret-leak.test.ts:generic-api-key:40
+d0035fc90a471f8672594fc725897045d591ad5a:tests/unit/health-completeness.test.ts:generic-api-key:118
+d0035fc90a471f8672594fc725897045d591ad5a:tests/unit/health-completeness.test.ts:generic-api-key:119
+672b031b270ae720128df061f1c05adab713c199:scripts/measure-connection-limits.ts:generic-api-key:15
+8951110694a1f43f67f76d304e0768c4bae27139:docker-compose.loadtest.yml:generic-api-key:58
+8951110694a1f43f67f76d304e0768c4bae27139:tools/loadtest/smoke-test.ts:generic-api-key:13
+0d10fae13280aec7feb3399fa48da4b981618e9e:tools/loadtest/rigorous-load-harness.ts:generic-api-key:17
+8951110694a1f43f67f76d304e0768c4bae27139:tools/loadtest/ablation-harness.ts:generic-api-key:16
+ea696800ae1d25231c8805f5f7dc479bf4d5ff58:scripts/test-browser-b1-repro.ts:generic-api-key:5
+ea696800ae1d25231c8805f5f7dc479bf4d5ff58:scripts/test-part-a-b1-repro.ts:generic-api-key:7
+874847570f2936aeef82042d569e64e99260e084:scripts/test-p0-5-locked-content-scan.ts:generic-api-key:12
+874847570f2936aeef82042d569e64e99260e084:scripts/test-p0-4-exam-integrity.ts:generic-api-key:191
+b421f2b3e87ae68484904bf27c62201244455682:scripts/test-pass9-playwright-crawl.ts:generic-api-key:9
+3393deac92e5bb84f64c9ca52a16288e1a6d3506:scripts/test-pass9-real-payment-path.ts:generic-api-key:9
+570bfd0eec37a6fb0659bdd61e1be90e03c17bd7:scripts/run-pass9-qa-matrix.ts:generic-api-key:23
+986edd2ab74322f22a0704b826bebfe4754078ae:scripts/test-step4-real-http-suite.ts:generic-api-key:22
+8a621168e63eaa59b4935f3899d3a9e65522f753:scripts/test-step5-complete-http-suite.ts:generic-api-key:22
+4741dff9efb041823e952eaa3c0b1587357bce31:scripts/test-pass6-webhook.ts:generic-api-key:5
+5ac07213149e9a7de4f7d85140f737ca93ae9354:scripts/test-pass5-section1.ts:generic-api-key:11
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/__tests__/encryption.test.ts:generic-api-key:5
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/__tests__/encryption.test.ts:generic-api-key:8
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/__tests__/encryption.test.ts:generic-api-key:27
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/__tests__/streamingLogger.test.ts:generic-api-key:360
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/credentials/__tests__/encryption.test.ts:generic-api-key:5
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/credentials/__tests__/encryption.test.ts:generic-api-key:8
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/credentials/__tests__/encryption.test.ts:generic-api-key:27
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/lib/workflow/__tests__/streamingLogger.test.ts:generic-api-key:360
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/ml/data/workflows.json:generic-api-key:68
+
+# Documentation examples (usage guides, UI code samples, env template examples)
+672194ebf0df91c5097d48ba9b52681e20050139:docs/PAYMENT_TESTING.md:generic-api-key:13
+672194ebf0df91c5097d48ba9b52681e20050139:docs/PHASE_8_COMPLETE.md:generic-api-key:86
+89c29690647f38c601f4b86399fe993f1a4d97ec:TrillionSkill/docs/PAYMENT_TESTING.md:stripe-access-token:12
+89c29690647f38c601f4b86399fe993f1a4d97ec:TrillionSkill/docs/PAYMENT_TESTING.md:generic-api-key:13
+89c29690647f38c601f4b86399fe993f1a4d97ec:TrillionSkill/docs/PHASE_8_COMPLETE.md:generic-api-key:86
+a64af0a1927298b47c5167bac9c98d153ede2d23:MarketFlow/app/workflows/api-keys/page.tsx:curl-auth-header:381
+819fc0f86ff7f5eaeff2fbc20bfb779f75073e9d:Market/.env.local.example:generic-api-key:39
+
+# Evidence output (test logs, verification output, report snapshots)
+71f8e18fe87ff503a4638c86dc46fe077a77f081:reports/EVIDENCE/p5-entitlements.ts:generic-api-key:171
+024579a5ccb8da93a388446336dfea5981703f8e:reports/EVIDENCE/p2-v1-otp.txt:generic-api-key:5
+26fd26230159b1e52f68e3c88fe5b9ad996ff641:docs/verify-launch/evidence/sec6-unit-sweep.txt:generic-api-key:3706
+165cd03e35da11615aee0342a2196ffb5076c6f3:REPORT.md:generic-api-key:1187
+165cd03e35da11615aee0342a2196ffb5076c6f3:REPORT.md:generic-api-key:1194
+165cd03e35da11615aee0342a2196ffb5076c6f3:REPORT.md:generic-api-key:1204
