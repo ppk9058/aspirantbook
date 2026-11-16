@@ -51,7 +51,27 @@ export async function GET(req: NextRequest) {
       where,
       orderBy: { createdAt: "desc" },
       take: 100,
-      include: {
+      select: {
+        id: true,
+        shortId: true,
+        textHash: true,
+        q: true,
+        options: true,
+        answer: true,
+        answerIndex: true,
+        explanation: true,
+        sub: true,
+        top: true,
+        exam: true,
+        year: true,
+        sourceTag: true,
+        sourceNo: true,
+        status: true,
+        isPublished: true,
+        publishedAt: true,
+        createdAt: true,
+        solution: true,
+        solutionSource: true,
         _count: {
           select: {
             translations: true,

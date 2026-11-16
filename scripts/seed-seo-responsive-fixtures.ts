@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, Prisma } from "@prisma/client"
 import dotenv from "dotenv"
 import fs from "fs"
 
@@ -102,6 +102,38 @@ export async function seedSeoResponsiveFixtures() {
       status: "PUBLISHED",
       isPublished: true,
       isVerified: true,
+      solution: {
+        status: "APPROVED",
+        check: "agree",
+        answerExplain: "The **Bhabar** is a narrow porous gravel belt along the Shivalik foothills where streams disappear underground before re-emerging in the **Tarai**.",
+        keyPoints: [
+          "**Bhabar**: coarse boulder belt; streams go underground.",
+          "**Tarai**: marshy belt where streams re-emerge.",
+        ],
+        additionalInfo: [
+          {
+            heading: "Bhabar vs Tarai",
+            points: [
+              {
+                text: "Bhabar lies along the Shivalik foothills (8–16 km wide).",
+                sub: ["Rivers vanish due to high porosity."],
+              },
+              {
+                text: "Tarai is south of Bhabar with re-emerging streams.",
+                sub: ["Suitable for agriculture after drainage."],
+              },
+            ],
+          },
+        ],
+        optionAnalysis: [
+          { letter: "A", verdict: "Correct", reason: "a bud-like coarse belt where streams vanish is exactly the Bhabar definition." },
+          { letter: "B", verdict: "Incorrect", reason: "the Tarai is a wet, marshy re-emergence zone, not an excessively dry upland." },
+          { letter: "C", verdict: "Incorrect", reason: "neither belt is composed of Pleistocene basaltic lava flows." },
+          { letter: "D", verdict: "Incorrect", reason: "fluvial sedimentation is characteristic of the Brahmaputra delta." },
+        ],
+        memoryTip: "Remember: **B**habar = **B**oulders vanish, **T**arai = streams **T**urn back up.",
+        concepts: ["Bhabar Belt", "Tarai Region"],
+      } as unknown as Prisma.InputJsonValue,
     },
   })
 

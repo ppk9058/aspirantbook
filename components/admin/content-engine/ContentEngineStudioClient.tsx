@@ -23,6 +23,23 @@ import {
   StudioDeleteImpactDialog,
 } from "@/components/admin/studio"
 import { toast } from "sonner"
+import { AddBatchModal } from "./AddBatchModal"
+import { AnswerCheckModal } from "./AnswerCheckModal"
+import { ReviewModal } from "./ReviewModal"
+import { HindiReviewModal } from "./HindiReviewModal"
+
+export interface ContentEngineSolution {
+  status?: string
+  check?: string | null
+  checkNote?: string | null
+  unsure?: string | null
+  warnings?: string[]
+  keyPoints?: string[]
+  additionalInfo?: { heading: string; points: { text: string; sub: string[] }[] }[]
+  optionAnalysis?: { letter: string; verdict: string; reason: string }[]
+  memoryTip?: string | null
+  concepts?: string[]
+}
 
 export interface ContentEngineQuestionItem {
   id: string
@@ -49,13 +66,15 @@ export interface ContentEngineQuestionItem {
     sub: string
     top: string
   } | null
+  solution?: ContentEngineSolution | null
+  solutionSource?: string | null
 }
 
 interface ContentEngineStudioClientProps {
   initialQuestions: ContentEngineQuestionItem[]
 }
 
-type ContentEngineTab = "ALL" | "PUBLISHED" | "DRAFT" | "ARCHIVED"
+type ContentEngineTab = "ALL" | "PUBLISHED" | "DRAFT" | "NEEDS_REVIEW" | "ARCHIVED"
 
 export function ContentEngineStudioClient({
   initialQuestions,
@@ -72,6 +91,10 @@ export function ContentEngineStudioClient({
   // Quick view / edit modal state
   const [viewingQuestion, setViewingQuestion] = useState<ContentEngineQuestionItem | null>(null)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isBatchOpen, setIsBatchOpen] = useState(false)
+  const [isAnswerCheckOpen, setIsAnswerCheckOpen] = useState(false)
+  const [isReviewOpen, setIsReviewOpen] = useState(false)
+  const [isHindiReviewOpen, setIsHindiReviewOpen] = useState(false)
   const [newQ, setNewQ] = useState("")
   const [newOptions, setNewOptions] = useState(["", "", "", ""])
   const [newAnswer, setNewAnswer] = useState("")
@@ -81,19 +104,38 @@ export function ContentEngineStudioClient({
   const [newYear, setNewYear] = useState("2024")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Reload questions from the API (used after batch import)
+  const refetchQuestions = async () => {
+    try {
+      const res = await fetch("/api/admin/content-engine")
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to reload questions")
+      setQuestions(data.data ?? [])
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to reload questions")
+    }
+  }
+
   // Status counts calculation
   const statusCounts = useMemo(() => {
     const counts = {
       ALL: questions.length,
       PUBLISHED: 0,
       DRAFT: 0,
+      NEEDS_REVIEW: 0,
       ARCHIVED: 0,
     }
     for (const q of questions) {
       const s = (q.status || "DRAFT").toUpperCase()
-      if (s === "PUBLISHED" || q.isPublished) counts.PUBLISHED++
-      else if (s === "ARCHIVED") counts.ARCHIVED++
-      else counts.DRAFT++
+      if (s === "ARCHIVED") {
+        counts.ARCHIVED++
+      } else if (s === "PUBLISHED" || q.isPublished) {
+        counts.PUBLISHED++
+      } else if (q.solution?.status === "NEEDS_REVIEW") {
+        counts.NEEDS_REVIEW++
+      } else {
+        counts.DRAFT++
+      }
     }
     return counts
   }, [questions])
@@ -103,9 +145,21 @@ export function ContentEngineStudioClient({
       { id: "ALL" as const, label: "All Questions", count: statusCounts.ALL },
       { id: "PUBLISHED" as const, label: "Published", count: statusCounts.PUBLISHED },
       { id: "DRAFT" as const, label: "Drafts", count: statusCounts.DRAFT },
+      { id: "NEEDS_REVIEW" as const, label: "Needs Review", count: statusCounts.NEEDS_REVIEW },
       { id: "ARCHIVED" as const, label: "Archived", count: statusCounts.ARCHIVED },
     ],
     [statusCounts]
+  )
+
+  const needsReviewQuestions = useMemo(
+    () =>
+      questions.filter(
+        (q) =>
+          (q.status || "DRAFT").toUpperCase() !== "ARCHIVED" &&
+          (q.status || "DRAFT").toUpperCase() !== "PUBLISHED" &&
+          q.solution?.status === "NEEDS_REVIEW",
+      ),
+    [questions]
   )
 
   // Filter options
@@ -125,6 +179,10 @@ export function ContentEngineStudioClient({
 
       if (activeTab === "PUBLISHED" && !isPub) return false
       if (activeTab === "DRAFT" && (isPub || s === "ARCHIVED")) return false
+      if (activeTab === "NEEDS_REVIEW") {
+        if (isPub || s === "ARCHIVED") return false
+        if (q.solution?.status !== "NEEDS_REVIEW") return false
+      }
       if (activeTab === "ARCHIVED" && s !== "ARCHIVED") return false
 
       if (examFilter !== "ALL" && q.exam !== examFilter) return false
@@ -305,6 +363,38 @@ export function ContentEngineStudioClient({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setIsReviewOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 min-h-[40px] cursor-pointer"
+          >
+            <Clock className="w-4 h-4" />
+            <span>Review Queue ({needsReviewQuestions.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsHindiReviewOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 hover:bg-purple-100 dark:hover:bg-purple-900/40 min-h-[40px] cursor-pointer"
+          >
+            <Clock className="w-4 h-4" />
+            <span>Hindi Review</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsAnswerCheckOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 hover:bg-amber-100 dark:hover:bg-amber-900/40 min-h-[40px] cursor-pointer"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Answer Check</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsBatchOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 min-h-[40px] cursor-pointer"
+          >
+            <FileQuestion className="w-4 h-4" />
+            <span>Add Batch</span>
+          </button>
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
@@ -647,6 +737,33 @@ export function ContentEngineStudioClient({
       )}
 
       {/* Create Modal */}
+      {isReviewOpen && (
+        <ReviewModal
+          questions={needsReviewQuestions}
+          onClose={() => setIsReviewOpen(false)}
+          onUpdated={refetchQuestions}
+        />
+      )}
+      {isHindiReviewOpen && (
+        <HindiReviewModal
+          onClose={() => setIsHindiReviewOpen(false)}
+          onChanged={refetchQuestions}
+        />
+      )}
+      {isAnswerCheckOpen && (
+        <AnswerCheckModal
+          onClose={() => setIsAnswerCheckOpen(false)}
+          onDone={refetchQuestions}
+        />
+      )}
+      {isBatchOpen && (
+        <AddBatchModal
+          onClose={() => setIsBatchOpen(false)}
+          onImported={() => {
+            refetchQuestions()
+          }}
+        />
+      )}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
           <div className="bg-white dark:bg-[#0a1628] rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-gray-200 dark:border-gray-800 space-y-4 text-xs">
