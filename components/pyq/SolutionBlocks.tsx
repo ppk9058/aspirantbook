@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { KeyRound, FileText, Lightbulb } from "lucide-react"
 import { inlineHtml, publicSolution, escapeHtml } from "@/lib/pyq/render"
 
@@ -225,13 +226,13 @@ export function SolutionBlocks({
           </h3>
           <div className="flex flex-wrap gap-2">
             {concepts.map((c) => (
-              <a
+              <Link
                 key={c}
                 href={`${basePath}?${topicFilterKey}=${encodeURIComponent(c)}`}
                 className="inline-flex items-center min-h-[36px] rounded-full border border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/40 px-3 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
               >
                 {escapeHtml(c)}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

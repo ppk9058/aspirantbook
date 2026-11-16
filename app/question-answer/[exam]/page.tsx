@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import Link from "next/link"
 import { unslugify, slugify, yearHubPath, qaPath } from "@/lib/modules/content-engine/paths"
 import { Badge } from "@/components/ui/badge"
@@ -84,6 +84,16 @@ export default async function ExamHubPage({
   ])
 
   if (questions.length === 0 && years.length === 0) {
+    const q = await prisma.contentEngineQuestion.findFirst({
+      where: {
+        OR: [{ slug: examSlug }, { shortId: examSlug }],
+        isPublished: true,
+      },
+      select: { exam: true, sub: true, slug: true },
+    })
+    if (q && q.slug) {
+      permanentRedirect(qaPath("en", q.exam, q.sub, q.slug))
+    }
     notFound()
   }
 

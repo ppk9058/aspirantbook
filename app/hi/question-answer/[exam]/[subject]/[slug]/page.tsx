@@ -6,6 +6,8 @@ import { getHindiSubject, getHindiTopic } from "@/lib/modules/content-engine/tax
 import { PublicQuestionView } from "@/components/content-engine-public/PublicQuestionView"
 import { Metadata } from "next"
 import { getBaseUrl } from "@/lib/seo/core"
+import { findRelevantSeries } from "@/lib/pyq/series-match"
+import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-static"
 export const revalidate = 3600
@@ -116,6 +118,31 @@ export default async function HindiQuestionPage({
 
   const seo = buildSeoModel(seoInput, "hi", BASE_URL)
 
+  const [series, related] = await Promise.all([
+    findRelevantSeries(q.exam),
+    q.top
+      ? prisma.contentEngineQuestion
+          .findMany({
+            where: {
+              isPublished: true,
+              id: { not: q.id },
+              top: q.top,
+              slug: { not: null },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 4,
+            select: { id: true, shortId: true, slug: true, q: true, exam: true, sub: true },
+          })
+          .catch(() => [])
+      : Promise.resolve([]),
+  ])
+
+  // Use structured solution if approved on the reviewed Hindi translation
+  const hiSolution =
+    hiTr.solution && typeof hiTr.solution === "object" && (hiTr.solution as any).status === "APPROVED"
+      ? hiTr.solution
+      : undefined
+
   const hindiQuestionData = {
     id: q.id,
     shortId: q.shortId,
@@ -125,6 +152,7 @@ export default async function HindiQuestionPage({
     answer: q.answer,
     answerIndex: q.answerIndex,
     explanation: hiTr.explanation || q.explanation,
+    solution: hiSolution,
     sub: getHindiSubject(q.sub || "Uncategorized"),
     top: hiTr.top || getHindiTopic(q.top || "General"),
     exam: q.exam,
@@ -143,6 +171,8 @@ export default async function HindiQuestionPage({
       jsonLdScript={seo.jsonLdScriptString}
       breadcrumbs={seo.breadcrumbs}
       alternateLangUrl={alternateLangUrl}
+      series={series}
+      related={related as any}
     />
   )
 }

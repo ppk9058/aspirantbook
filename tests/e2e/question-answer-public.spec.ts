@@ -32,7 +32,7 @@ test.describe("Public question-answer pages (M6)", () => {
   })
 
   test("detail page renders question, structured solution, pass banner and relevant test-series card", async ({ page }) => {
-    await page.goto("/question-answer/test-resp-01-long-english-question-with-image")
+    await page.goto("/question-answer/upsc-cse/geography/test-resp-01-long-english-question-with-image")
     await expect(page.getByRole("heading", { name: "Question", exact: true })).toBeVisible()
     // Structured solution sections
     await expect(page.getByText("Detailed Solution")).toBeVisible()
@@ -59,7 +59,7 @@ test.describe("Public question-answer pages (M6)", () => {
   test("unknown/non-published question is not indexable (404 UI + noindex)", async ({ page }) => {
     // Dev streaming may commit 200 before notFound(); the contract we need is
     // the 404 page UI + robots noindex (never rendered publicly).
-    await page.goto("/question-answer/does-not-exist-anywhere")
+    await page.goto("/question-answer/upsc-cse/geography/does-not-exist-anywhere")
     await expect(page.getByText("404", { exact: false }).first()).toBeVisible()
     await expect(page.locator('meta[name="robots"][content*="noindex"]').first()).toBeAttached()
     await expect(page.getByRole("heading", { name: "Question", exact: true })).toHaveCount(0)

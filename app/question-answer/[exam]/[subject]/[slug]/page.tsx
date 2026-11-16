@@ -5,6 +5,8 @@ import { slugify, qaPath } from "@/lib/modules/content-engine/paths"
 import { PublicQuestionView } from "@/components/content-engine-public/PublicQuestionView"
 import { Metadata } from "next"
 import { getBaseUrl } from "@/lib/seo/core"
+import { findRelevantSeries } from "@/lib/pyq/series-match"
+import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-static"
 export const revalidate = 3600
@@ -121,6 +123,25 @@ export default async function PublicQuestionPage({
 
   const seo = buildSeoModel(seoInput, "en", BASE_URL)
 
+  const [series, related] = await Promise.all([
+    findRelevantSeries(q.exam),
+    q.top
+      ? prisma.contentEngineQuestion
+          .findMany({
+            where: {
+              isPublished: true,
+              id: { not: q.id },
+              top: q.top,
+              slug: { not: null },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 4,
+            select: { id: true, shortId: true, slug: true, q: true, exam: true, sub: true },
+          })
+          .catch(() => [])
+      : Promise.resolve([]),
+  ])
+
   const questionData = {
     id: q.id,
     shortId: q.shortId,
@@ -130,6 +151,7 @@ export default async function PublicQuestionPage({
     answer: q.answer,
     answerIndex: q.answerIndex,
     explanation: q.explanation,
+    solution: q.solution,
     sub: q.sub || "Uncategorized",
     top: q.top || "General",
     exam: q.exam,
@@ -150,6 +172,8 @@ export default async function PublicQuestionPage({
       jsonLdScript={seo.jsonLdScriptString}
       breadcrumbs={seo.breadcrumbs}
       alternateLangUrl={alternateLangUrl}
+      series={series}
+      related={related as any}
     />
   )
 }
