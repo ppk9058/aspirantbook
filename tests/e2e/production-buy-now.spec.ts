@@ -104,7 +104,7 @@ test.describe("Step 5: Get Pass Now / Buy Now in Production Mode Browser", () =>
     // Assert on-page Order Summary Panel is visible
     const summaryPanel = page.locator('[data-testid="pricing-order-summary"]')
     await expect(summaryPanel).toBeVisible({ timeout: 10_000 })
-    await expect(summaryPanel.locator('text="PREMIUM PASS - Pro Learner"')).toBeVisible()
+    await expect(summaryPanel.locator('text="AspirantBook Pass"')).toBeVisible()
     await expect(summaryPanel.locator('text="₹499"')).toBeVisible()
     await expect(summaryPanel.locator('text="Included in this pass:"')).toBeVisible()
 
@@ -114,7 +114,7 @@ test.describe("Step 5: Get Pass Now / Buy Now in Production Mode Browser", () =>
 
     expect(rzpOpts).toBeDefined()
     expect(rzpOpts.name).toBe("AspirantBook")
-    expect(rzpOpts.description).toContain("PREMIUM PASS")
+    expect(rzpOpts.description).toContain("AspirantBook Pass")
     expect(rzpOpts.theme?.color).toBe("#1448d8")
     expect(rzpOpts.image).toContain("/aspirant-logo.jpg")
     expect(rzpOpts.amount).toBe(49900)

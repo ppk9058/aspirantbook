@@ -125,7 +125,7 @@ export function useSamePageBuyNow() {
             amount: Number(order.amount),
             currency: order.currency,
             name: "AspirantBook",
-            description: `PREMIUM PASS - Pro Learner (${planTier})`,
+            description: `AspirantBook Pass (${planTier})`,
             image: item.image || logoUrl,
             order_id: order.orderId,
             prefill: {
@@ -135,7 +135,7 @@ export function useSamePageBuyNow() {
             },
             notes: {
               planId: item.id,
-              planName: `PREMIUM PASS - Pro Learner (${planTier})`,
+              planName: `AspirantBook Pass (${planTier})`,
               type: "subscription",
             },
             themeColor: "#1448d8",

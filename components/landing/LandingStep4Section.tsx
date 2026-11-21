@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Award, CheckCircle2, ChevronRight, Compass, GraduationCap } from "lucide-react"
+import { PassPurchaseButton } from "@/components/pass/PassPurchaseButton"
 
 export default function LandingStep4Section() {
   return (
@@ -69,12 +70,11 @@ export default function LandingStep4Section() {
 
             {/* Mint / Light-Green Action CTA */}
             <div className="pt-2">
-              <Link
-                href="/pricing"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#5FE3A1] hover:bg-[#4dd490] px-8 py-3.5 text-sm sm:text-base font-extrabold text-[#05381F] shadow-lg shadow-black/15 transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-600"
-              >
-                <span>Unlock AspirantBook Pass</span>
-              </Link>
+              <PassPurchaseButton
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#5FE3A1] hover:bg-[#4dd490] px-8 py-3.5 text-sm sm:text-base font-extrabold text-[#05381F] shadow-lg shadow-black/15 transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-600 cursor-pointer"
+                label="Unlock AspirantBook Pass"
+                activeLabel="Pass Active • Go to Dashboard"
+              />
             </div>
           </div>
 

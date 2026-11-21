@@ -235,13 +235,13 @@ export default function ProfileScreen() {
 
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => router.push("/subscription" as any)}
+              onPress={() => router.push("/(tabs)/pass" as any)}
               style={[styles.menuItem, { borderBottomColor: colors.border }]}
             >
               <View style={styles.menuItemLeft}>
                 <Crown size={18} color="#f59e0b" />
                 <Text style={[styles.menuItemText, { color: colors.textPrimary }]}>
-                  Pass & Subscription Tier
+                  AspirantBook Pass
                 </Text>
               </View>
               <ChevronRight size={18} color={colors.textMuted} />

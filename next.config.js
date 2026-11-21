@@ -167,6 +167,30 @@ const nextConfig = {
             },
         ]
     },
+    async redirects() {
+        return [
+            {
+                source: '/subscription',
+                destination: '/pricing',
+                permanent: true,
+            },
+            {
+                source: '/subscription/:path*',
+                destination: '/pricing',
+                permanent: true,
+            },
+            {
+                source: '/settings/subscription',
+                destination: '/pricing',
+                permanent: true,
+            },
+            {
+                source: '/settings/subscription/:path*',
+                destination: '/pricing',
+                permanent: true,
+            },
+        ]
+    },
 }
 
 module.exports = nextConfig

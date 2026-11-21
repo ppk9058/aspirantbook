@@ -16,6 +16,7 @@ import {
 import Link from "next/link"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 import { hasActivePass } from "@/lib/auth/entitlements"
+import { PassPurchaseButton } from "@/components/pass/PassPurchaseButton"
 
 export default async function CareerTrackDetailPage({
     params
@@ -46,11 +47,20 @@ export default async function CareerTrackDetailPage({
                         <h1 className="text-4xl font-bold mb-4">{track.title}</h1>
 
                         {(hasAccess || SHOW_PREMIUM_PLAN) && (
-                            <Link href={hasAccess ? `/tracks/career/${track.slug}/enroll` : "/pricing"}>
-                                <Button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8">
-                                    {hasAccess ? "Enroll in Track" : "Upgrade to Access"}
-                                </Button>
-                            </Link>
+                            hasAccess ? (
+                                <Link href={`/tracks/career/${track.slug}/enroll`}>
+                                    <Button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 cursor-pointer">
+                                        Enroll in Track
+                                    </Button>
+                                </Link>
+                            ) : (
+                                <PassPurchaseButton
+                                    className="inline-flex items-center justify-center rounded-md text-sm font-semibold h-10 px-8 bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+                                    label="Upgrade to Access"
+                                    activeLabel="Enroll in Track"
+                                    activeHref={`/tracks/career/${track.slug}/enroll`}
+                                />
+                            )
                         )}
                     </div>
 

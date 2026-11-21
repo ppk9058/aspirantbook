@@ -31,6 +31,7 @@ import { Button } from "../primitives/Button";
 import {
   SUPPORT_WHATSAPP_NUMBER,
   buildWhatsAppSupportUrl,
+  openWebUrl,
 } from "../../lib/web-links";
 
 export interface MobileProfileSheetProps {
@@ -95,8 +96,8 @@ export function MobileProfileSheet({
       testId: "profile-sheet-link-profile",
     },
     {
-      name: "Subscription & Payments",
-      route: "/subscription",
+      name: "Pass & Access",
+      route: "/(tabs)/pass",
       icon: CreditCard,
       testId: "profile-sheet-link-subscription",
     },
@@ -240,7 +241,14 @@ export function MobileProfileSheet({
 
                 {/* Pass Upgrade / Active Banner */}
                 <TouchableOpacity
-                  onPress={() => handleNavigate("/subscription")}
+                  onPress={() => {
+                    if (hasActivePass) {
+                      handleNavigate("/(tabs)/pass");
+                    } else {
+                      onClose();
+                      void openWebUrl("/pricing", "mobile_profile_sheet");
+                    }
+                  }}
                   testID="profile-sheet-pass-banner"
                   activeOpacity={0.85}
                   style={[

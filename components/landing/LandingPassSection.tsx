@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Trophy, ClipboardList, BarChart3, Languages } from "lucide-react"
+import { PassPurchaseButton } from "@/components/pass/PassPurchaseButton"
 
 export default function LandingPassSection() {
   return (
@@ -171,12 +172,11 @@ export default function LandingPassSection() {
 
             {/* Sky-Blue Action CTA */}
             <div className="pt-2">
-              <Link
-                href="/pricing"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00BAF2] hover:bg-[#00a3d4] px-8 py-3.5 text-sm sm:text-base font-extrabold text-white shadow-md shadow-sky-500/20 transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-              >
-                <span>Explore AspirantBook Pass</span>
-              </Link>
+              <PassPurchaseButton
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00BAF2] hover:bg-[#00a3d4] px-8 py-3.5 text-sm sm:text-base font-extrabold text-white shadow-md shadow-sky-500/20 transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 cursor-pointer"
+                label="Explore AspirantBook Pass"
+                activeLabel="Pass Active • Go to Dashboard"
+              />
             </div>
           </div>
         </div>

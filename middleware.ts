@@ -104,14 +104,23 @@ export default auth((req) => {
     }
 
 
+    // 308 permanent redirect /subscription and /settings/subscription to /pricing
+    if (
+        nextUrl.pathname === "/subscription" ||
+        nextUrl.pathname.startsWith("/subscription/") ||
+        nextUrl.pathname === "/settings/subscription" ||
+        nextUrl.pathname.startsWith("/settings/subscription/")
+    ) {
+        return NextResponse.redirect(toRequestUrl("/pricing"), 308)
+    }
+
     // Private routes requiring authentication:
-    // /profile, /settings, /subscription, /purchases,
+    // /profile, /settings, /purchases,
     // /learn (actual video player), /assessments (private tests/attempts),
     // /doubts (private doubt center), /forms, /tracks, /code-along, /leaderboard
     const isPrivateRoute =
         nextUrl.pathname.startsWith("/profile") ||
         nextUrl.pathname.startsWith("/settings") ||
-        nextUrl.pathname.startsWith("/subscription") ||
         nextUrl.pathname.startsWith("/purchases") ||
         nextUrl.pathname.startsWith("/learn") ||
         nextUrl.pathname.includes("/learn/") ||
@@ -175,6 +184,7 @@ export const config = {
         "/leaderboard/:path*",
         "/profile/:path*",
         "/settings/:path*",
+        "/subscription",
         "/subscription/:path*",
         "/purchases/:path*",
         "/doubts/:path*",

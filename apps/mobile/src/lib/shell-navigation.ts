@@ -53,7 +53,6 @@ export function isTabActive(
       );
     case "pass":
       return Boolean(
-        pathname.startsWith("/subscription") ||
         pathname.startsWith("/pricing") ||
         pathname.startsWith("/checkout") ||
         pathname.startsWith("/pass") ||

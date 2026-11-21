@@ -64,7 +64,7 @@ test.describe("Reproduction & Verification Suite for Bug 1 and Bug 2", () => {
     // Order summary panel appears behind Razorpay / modal
     const orderSummary = page.locator('[data-testid="pricing-order-summary"]')
     await expect(orderSummary).toBeVisible({ timeout: 8000 })
-    await expect(page.locator('text="PREMIUM PASS - Pro Learner"').first()).toBeVisible()
+    await expect(page.locator('text="AspirantBook Pass"').first()).toBeVisible()
     await expect(page.locator('text="₹499"').first()).toBeVisible()
   })
 })

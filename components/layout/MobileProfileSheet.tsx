@@ -19,6 +19,8 @@ import { safeSignOut } from "@/lib/auth-client"
 import { useTheme } from "@/components/providers/ThemeProvider"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 import NotificationsMenu from "@/components/layout/NotificationsMenu"
+import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 
 interface MobileProfileSheetProps {
     isOpen: boolean
@@ -29,6 +31,13 @@ interface MobileProfileSheetProps {
 export default function MobileProfileSheet({ isOpen, onClose, hasActivePass }: MobileProfileSheetProps) {
     const { data: session, status } = useSession()
     const { theme, toggleTheme } = useTheme()
+    const {
+        isOpen: isPassModalOpen,
+        openPassModal,
+        closePassModal,
+    } = usePassPurchaseModal({
+        hasActivePass: Boolean(hasActivePass),
+    })
 
     if (!isOpen) return null
 
@@ -118,22 +127,30 @@ export default function MobileProfileSheet({ isOpen, onClose, hasActivePass }: M
                                         Checking pass status…
                                     </span>
                                 </div>
-                            ) : (
+                            ) : hasActivePass ? (
                                 <Link
-                                    href={hasActivePass ? "/subscription" : "/pricing"}
+                                    href="/pricing"
                                     onClick={onClose}
-                                    className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-transform active:scale-95 ${
-                                        hasActivePass
-                                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
-                                            : "bg-teal-600 text-white shadow-xs hover:bg-teal-700"
-                                    }`}
+                                    className="w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-transform active:scale-95 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
                                 >
                                     <span className="flex items-center gap-1.5">
                                         <Zap className="h-3.5 w-3.5 fill-current" />
-                                        {hasActivePass ? "Pass Active (Pro Access)" : "Upgrade with Pass"}
+                                        Pass Active (Pro Access)
                                     </span>
                                     <ChevronRight className="h-3.5 w-3.5" />
                                 </Link>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => openPassModal()}
+                                    className="w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-transform active:scale-95 bg-teal-600 text-white shadow-xs hover:bg-teal-700 cursor-pointer"
+                                >
+                                    <span className="flex items-center gap-1.5">
+                                        <Zap className="h-3.5 w-3.5 fill-current" />
+                                        Upgrade with Pass
+                                    </span>
+                                    <ChevronRight className="h-3.5 w-3.5" />
+                                </button>
                             )}
                         </div>
                     )}
@@ -209,6 +226,7 @@ export default function MobileProfileSheet({ isOpen, onClose, hasActivePass }: M
                     )}
                 </div>
             </div>
+            <PassPurchaseModal isOpen={isPassModalOpen} onClose={closePassModal} />
         </div>
     )
 }

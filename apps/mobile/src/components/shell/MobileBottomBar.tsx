@@ -57,7 +57,6 @@ export function MobileBottomBar({ testID }: MobileBottomBarProps) {
 
   const isPassActive = Boolean(
     pathname && (
-      pathname.startsWith("/subscription") ||
       pathname.startsWith("/pricing") ||
       pathname.startsWith("/checkout") ||
       pathname.startsWith("/pass") ||
