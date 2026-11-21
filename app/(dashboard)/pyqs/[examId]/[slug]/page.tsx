@@ -6,6 +6,7 @@ import { SeoJsonLd } from "@/lib/seo"
 import { adaptPyqPaperSeo } from "@/lib/seo/adapters/pyq-paper"
 import { loadPyqPaperForDetail } from "@/lib/pyqs/paper-loader"
 import { PyqDetailActionButtons } from "@/components/pyqs/PyqDetailActionButtons"
+import { PassPurchaseButton } from "@/components/pass/PassPurchaseButton"
 import {
   FileText,
   Calendar,
@@ -362,13 +363,17 @@ export default async function PyqPaperDetailPage({
                   Unlock the full question paper with all {paper.totalQuestions} questions, complete answer key, and
                   in-depth explanations with AspirantBook Pass.
                 </p>
-                <Link
-                  href="/pricing"
-                  className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 min-h-[44px] rounded-xl bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 shadow-sm"
-                >
-                  <span>Get AspirantBook Pass</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
+                <PassPurchaseButton
+                  className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 min-h-[44px] rounded-xl bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 shadow-sm cursor-pointer"
+                  label={
+                    <>
+                      <span>Get AspirantBook Pass</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </>
+                  }
+                  activeLabel="Pass Active • View All Papers"
+                  activeHref="/pyqs"
+                />
               </div>
             )}
           </section>

@@ -54,7 +54,7 @@ export default function PricingPlanButton({
             {
                 type: "subscription",
                 id: "YEARLY",
-                title: "PREMIUM PASS - Pro Learner",
+                title: "AspirantBook Pass",
                 price: PASS_PRICE_INR,
                 isFree: false,
             },
@@ -139,7 +139,7 @@ export default function PricingPlanButton({
                                 Order Summary
                             </span>
                             <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">
-                                PREMIUM PASS - Pro Learner
+                                AspirantBook Pass
                             </h4>
                         </div>
                         <div className="text-right">
@@ -208,7 +208,7 @@ export default function PricingPlanButton({
                     {checkoutStatus === "success" && (
                         <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 border border-emerald-200 dark:border-emerald-900/50">
                             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-                            <span>Payment verified! Your Premium Pass is now active.</span>
+                            <span>Payment verified! Your AspirantBook Pass is now active.</span>
                         </div>
                     )}
                 </div>

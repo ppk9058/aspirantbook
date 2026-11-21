@@ -171,7 +171,7 @@ test("Copy: Pass marketing no longer claims video courses / all courses", () => 
   assert.ok(!checkout.includes("Full unlimited access to all courses"), "Checkout Pass card copy must be fixed")
   assert.ok(checkout.includes("PASS_SCOPE_SUMMARY"), "Checkout Pass card must use the shared scope copy")
 
-  for (const surface of ["app/pricing/page.tsx", "app/(dashboard)/subscription/page.tsx"]) {
+  for (const surface of ["app/pricing/page.tsx"]) {
     const file = read(surface)
     assert.ok(!file.includes("Access to all courses"), `${surface} must not claim all courses`)
     assert.ok(file.includes("PASS_INCLUDED_FEATURES"), `${surface} must use the shared Pass features`)

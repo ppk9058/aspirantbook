@@ -76,19 +76,11 @@ export function PyqDetailActionButtons({
             <button
               type="button"
               onClick={handlePassClick}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
             >
               <Lock className="w-4 h-4" />
               <span>Get Pass to View Full Paper</span>
             </button>
-
-            <Link
-              href="/pricing"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] rounded-xl border border-border bg-card text-foreground font-semibold text-sm hover:bg-muted transition-colors"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Compare Pass Plans</span>
-            </Link>
           </>
         )}
       </div>

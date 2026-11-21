@@ -181,7 +181,7 @@ test.describe("Real-Click Smoke Suite (No Direct URL Jumps, No Direct API Calls)
     // Summary panel is visible
     const summary = page.locator('[data-testid="pricing-order-summary"]')
     await expect(summary).toBeVisible({ timeout: 8000 })
-    await expect(page.locator('text="PREMIUM PASS - Pro Learner"').first()).toBeVisible()
+    await expect(page.locator('text="AspirantBook Pass"').first()).toBeVisible()
     await expect(page.locator('text="₹499"').first()).toBeVisible()
 
     // Check Razorpay options
@@ -190,7 +190,7 @@ test.describe("Real-Click Smoke Suite (No Direct URL Jumps, No Direct API Calls)
 
     expect(rzpOpts).toBeDefined()
     expect(rzpOpts.amount).toBe(49900)
-    expect(rzpOpts.description).toContain("PREMIUM PASS")
+    expect(rzpOpts.description).toContain("AspirantBook Pass")
     expect(rzpOpts.image).toContain("/aspirant-logo.jpg")
     expect(rzpOpts.theme?.color).toBe("#1448d8")
     expect(rzpOpts.prefill?.email).toBe(studentUser.email)

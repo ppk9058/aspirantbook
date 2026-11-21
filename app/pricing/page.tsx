@@ -8,6 +8,8 @@ import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
 import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
 import { hasActivePass } from "@/lib/auth/entitlements"
 import { adaptStaticPageSeo } from "@/lib/seo/adapters/static-pages"
+import { YourPassCard } from "@/components/pass/YourPassCard"
+import { getActivePassCardData } from "@/lib/pass/pass-card-data"
 
 export const metadata = adaptStaticPageSeo({
   title: "AspirantBook Pass - Unlock All Exams | AspirantBook",
@@ -22,6 +24,7 @@ export default async function PricingPage() {
     // Database-only Pass entitlement (single source: hasActivePass). The price
     // card stays visible; the button switches to "Go to Dashboard" for holders.
     const isPremiumActive = await hasActivePass(user?.id)
+    const passCardData = isPremiumActive ? await getActivePassCardData(user?.id) : null
 
     return (
         <div className="min-h-dvh bg-white dark:bg-gray-950 lg:pb-16">
@@ -42,6 +45,11 @@ export default async function PricingPage() {
 
                 {/* Section Stack: Benefits -> Price Card -> FAQ */}
                 <div className="space-y-8 sm:space-y-10">
+                    {/* Your Active Pass Card (for pass holders) */}
+                    {passCardData && (
+                        <YourPassCard passData={passCardData} />
+                    )}
+
                     {/* 1. Pass Benefits Checklist Card */}
                     <div data-testid="pricing-benefits-card" className="bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-white dark:from-blue-950/20 dark:via-indigo-950/10 dark:to-gray-900 border border-blue-200/80 dark:border-blue-900/60 rounded-3xl p-6 sm:p-8 shadow-xs">
                         <div className="flex items-center justify-between gap-3 mb-5">

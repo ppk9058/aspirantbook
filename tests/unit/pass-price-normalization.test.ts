@@ -45,13 +45,6 @@ test("lib/payments/useSamePageBuyNow.ts: maps subscription to yearly only", () =
     assert.ok(file.includes('|| "499"'), "Must preserve fallback || 499 for non-subscription items")
 })
 
-test("app/(dashboard)/subscription/page.tsx: per year period and Rs 499/year wording", () => {
-    const file = fs.readFileSync(path.join(ROOT, "app/(dashboard)/subscription/page.tsx"), "utf8")
-    assert.ok(file.includes('period: "per year"'), "Must state period per year")
-    assert.ok(file.includes('activeSubscription.plan === "MONTHLY" ? "₹499/month" : "₹499/year"'), "Must update YEARLY to ₹499/year while keeping legacy MONTHLY label")
-    assert.ok(!file.includes("4,999"), "Must not contain 4,999")
-})
-
 test("lib/actions/user/subscription.ts: mock upgrade uses PASS_PRICE_INR, no 4999", () => {
     const file = fs.readFileSync(path.join(ROOT, "lib/actions/user/subscription.ts"), "utf8")
     assert.ok(file.includes("amount: PASS_PRICE_INR"), "Must use PASS_PRICE_INR")

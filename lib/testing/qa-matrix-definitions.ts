@@ -248,8 +248,8 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J8-13", persona: "FREE", method: "GET", url: "/doubts", expectedStatus: 200, expectedBodySnippet: "Doubts", description: "Doubts forum loads" },
     { id: "J8-14", persona: "FREE", method: "GET", url: "/profile", expectedStatus: 200, expectedBodySnippet: "Profile", description: "User profile loads" },
     { id: "J8-15", persona: "FREE", method: "GET", url: "/settings", expectedStatus: 200, expectedBodySnippet: "Settings", description: "User settings load" },
-    { id: "J8-16", persona: "FREE", method: "GET", url: "/settings/subscription", expectedStatus: 200, expectedBodySnippet: "Subscription", description: "Subscription settings load" },
-    { id: "J8-17", persona: "FREE", method: "GET", url: "/subscription", expectedStatus: 200, expectedBodySnippet: "Subscription", description: "Subscription billing loads" },
+    { id: "J8-16", persona: "FREE", method: "GET", url: "/settings/subscription", expectedStatus: 308, description: "Subscription settings redirects to pricing" },
+    { id: "J8-17", persona: "FREE", method: "GET", url: "/subscription", expectedStatus: 308, description: "Subscription billing redirects to pricing" },
     { id: "J8-18", persona: "FREE", method: "GET", url: "/purchases", expectedStatus: 200, expectedBodySnippet: "Purchase", description: "Purchase history loads" },
     { id: "J8-19", persona: "FREE", method: "GET", url: "/tracks", expectedStatus: 200, expectedBodySnippet: "Career", description: "Career tracks load" },
     { id: "J8-20", persona: "FREE", method: "GET", url: "/tracks/skills", expectedStatus: 200, description: "Skill tracks load" },
@@ -379,7 +379,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   // J13 Resilience & UX Quality (15 cases)
   const j13Defs: TestCaseDef[] = [
     { id: "J13-01", persona: "Anonymous", method: "GET", url: "/?utm_source=seo", expectedStatus: 200, expectedBodySnippet: "AspirantBook", description: "Homepage loads with SEO campaign tracking" },
-    { id: "J13-02", persona: "Anonymous", method: "GET", url: "/pricing?plan=monthly", expectedStatus: 200, expectedBodySnippet: "Pricing", description: "Pricing page loads with monthly plan preselected" },
+    { id: "J13-02", persona: "Anonymous", method: "GET", url: "/pricing?plan=monthly", expectedStatus: 200, expectedBodySnippet: "Pricing", description: "Pricing page loads with unified 365-day pass" },
     { id: "J13-03", persona: "Anonymous", method: "GET", url: "/login?redirect=/dashboard", expectedStatus: 200, expectedBodySnippet: "Sign In", description: "Login page loads with redirect parameter" },
     { id: "J13-04", persona: "Anonymous", method: "GET", url: "/register?role=student", expectedStatus: 200, expectedBodySnippet: "Create your account", description: "Register page loads with student role" },
     { id: "J13-05", persona: "Anonymous", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs?preview=1", expectedStatus: 200, expectedBodySnippet: "72nd BPSC", description: "Course detail page loads with preview flag" },

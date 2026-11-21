@@ -32,7 +32,7 @@ export async function createCheckoutSession(plan: "MONTHLY" | "YEARLY") {
             },
         ],
         mode: "subscription",
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription?success=true`,
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?success=true`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout?canceled=true`,
         allow_promotion_codes: true,
         billing_address_collection: "required",

@@ -41,7 +41,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { colors, tokens } = useTheme();
   const { selectedGoal, openGoalModal } = useGoal();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasActivePass } = useAuth();
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["home-dashboard", selectedGoal.id],
@@ -52,51 +52,59 @@ export default function HomeScreen() {
   });
 
   const quickActions = useMemo(
-    () => [
-      {
-        title: "Test Series",
-        subtitle: "Exam Simulation",
-        icon: Award,
-        route: "/(tabs)/tests",
-        color: colors.primary,
-      },
-      {
-        title: "Courses",
-        subtitle: "Video Classes",
-        icon: PlayCircle,
-        route: "/(tabs)/courses",
-        color: "#10b981",
-      },
-      {
-        title: "PYQ Papers",
-        subtitle: "Previous Years",
-        icon: FileText,
-        route: "/pyqs",
-        color: "#8b5cf6",
-      },
-      {
-        title: "Current Affairs",
-        subtitle: "Daily & Monthly",
-        icon: Calendar,
-        route: "/current-affairs",
-        color: "#f59e0b",
-      },
-      {
-        title: "Career Tracks",
-        subtitle: "Guided Paths",
-        icon: Compass,
-        route: "/career-tracks",
-        color: "#06b6d4",
-      },
-      {
-        title: "Pass / Pro",
-        subtitle: "Unlimited Access",
-        icon: Crown,
-        route: "/subscription",
-        color: "#ec4899",
-      },
-    ],
-    [colors.primary]
+    () => {
+      const actions = [
+        {
+          title: "Test Series",
+          subtitle: "Exam Simulation",
+          icon: Award,
+          route: "/(tabs)/tests",
+          color: colors.primary,
+        },
+        {
+          title: "Courses",
+          subtitle: "Video Classes",
+          icon: PlayCircle,
+          route: "/(tabs)/courses",
+          color: "#10b981",
+        },
+        {
+          title: "PYQ Papers",
+          subtitle: "Previous Years",
+          icon: FileText,
+          route: "/pyqs",
+          color: "#8b5cf6",
+        },
+        {
+          title: "Current Affairs",
+          subtitle: "Daily & Monthly",
+          icon: Calendar,
+          route: "/current-affairs",
+          color: "#f59e0b",
+        },
+        {
+          title: "Career Tracks",
+          subtitle: "Guided Paths",
+          icon: Compass,
+          route: "/career-tracks",
+          color: "#06b6d4",
+        },
+      ];
+
+      // Pass holders in Expo must not see a purchase CTA
+      if (!hasActivePass) {
+        actions.push({
+          title: "Pass / Pro",
+          subtitle: "Unlimited Access",
+          icon: Crown,
+          route: "/(tabs)/pass",
+          color: "#ec4899",
+        });
+      }
+
+      return actions;
+    },
+    [colors.primary, hasActivePass]
   );
 
   const recentTests = data?.upcomingOrRecentTests;

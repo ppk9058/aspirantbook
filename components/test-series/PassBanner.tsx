@@ -1,14 +1,24 @@
+"use client"
+
 import Link from "next/link"
-import { Check } from "lucide-react"
+import { Check, CheckCircle2 } from "lucide-react"
+import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
+import { usePassStatus } from "@/lib/auth/usePassStatus"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 
 /**
- * AspirantBook PASS banner — reuses the design already implemented on the
- * test-series detail page (app/(dashboard)/test-series/[id]) with the top
- * gap removed: the NEW badge sits flush at the top-right of the card.
- * Server component; the CTA goes to /subscription (same destination as the
- * existing Pass modal's "Subscribe Now").
+ * AspirantBook PASS banner — reuses the test series pass banner styling.
+ * Client component wired to usePassPurchaseModal (same-window popup).
+ * Pass holders see "Pass Active" leading to dashboard, never a purchase modal.
  */
 export function PassBanner() {
+  const passStatus = usePassStatus()
+  const hasActive = Boolean(passStatus.hasActivePass)
+
+  const { isOpen, openPassModal, closePassModal } = usePassPurchaseModal({
+    hasActivePass: hasActive,
+  })
+
   const perks = [
     "Mock Tests",
     "Live Tests",
@@ -48,12 +58,25 @@ export function PassBanner() {
         ))}
       </div>
 
-      <Link
-        href="/subscription"
-        className="block w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] text-center min-h-[44px]"
-      >
-        Get Pass
-      </Link>
+      {hasActive ? (
+        <Link
+          href="/dashboard"
+          className="block w-full mt-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] text-center min-h-[44px] flex items-center justify-center gap-2"
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          <span>Pass Active • Go to Dashboard</span>
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={() => openPassModal()}
+          className="block w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] text-center min-h-[44px] cursor-pointer"
+        >
+          Get Pass
+        </button>
+      )}
+
+      <PassPurchaseModal isOpen={isOpen} onClose={closePassModal} />
     </div>
   )
 }

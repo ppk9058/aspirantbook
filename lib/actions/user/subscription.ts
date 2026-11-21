@@ -64,7 +64,7 @@ export async function upgradeSubscription(plan: "MONTHLY" | "YEARLY") {
         data: { role: "PREMIUM" },
     })
 
-    revalidatePath("/subscription")
+    revalidatePath("/pricing")
     revalidatePath("/profile")
 
     return { success: true }

@@ -29,12 +29,13 @@ import { useTheme } from "../../../theme/ThemeProvider";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../lib/api";
 import { shouldShowUpgradeCta } from "../../../lib/exam-access-ui";
+import { openWebUrl } from "../../../lib/web-links";
 
 export default function TestInstructionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { colors, tokens } = useTheme();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasActivePass } = useAuth();
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
@@ -266,13 +267,13 @@ export default function TestInstructionsScreen() {
             <Text style={styles.startErrorText}>{startError}</Text>
           </View>
         ) : null}
-        {shouldShowUpgradeCta(test.isFree, startError) ? (
+        {!hasActivePass && shouldShowUpgradeCta(test.isFree, startError) ? (
           <Button
-            title="View Pass Options"
+            title="Get Pass on website"
             variant="secondary"
             size="lg"
             style={{ width: "100%", marginBottom: 8 }}
-            onPress={() => router.push("/subscription" as any)}
+            onPress={() => openWebUrl("/pricing", "test_instructions")}
           />
         ) : null}
         <Button
